@@ -5,7 +5,7 @@ st.set_page_config(page_title="무엇이든 질문하세요~")
 st.title('무엇이든 질문하세요~')
 
 import os
-os.environ["GOOGLE_API_KEY"] = "AIzaSyBmhrPQkEWK1O1AQ_HcVUalPluF9N57JCw"  # "sk-" 대신 본인의 API 키를 입력하세요.
+os.environ["GOOGLE_API_KEY"] = "MY_GOOGLE_API_KEY"  # "sk-" 대신 본인의 API 키를 입력하세요.
 
 def generate_response(input_text):  # llm 답변 생성
     llm = ChatGoogleGenerativeAI(model="gemini-exp-1206", temperature=0.5, convert_system_message_to_human=True)
