@@ -1,2 +1,2 @@
 streamlit
-langchain-google-genai
+git+https://github.com/langchain-ai/langchain-google-genai.git
