@@ -1,5 +1,5 @@
-import streamlit as st
 from langchain_google_genai import ChatGoogleGenerativeAI
+import streamlit as st
 
 st.set_page_config(page_title="무엇이든 질문하세요~")
 st.title('무엇이든 질문하세요~')
