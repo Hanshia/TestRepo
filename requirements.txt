@@ -1,4 +1,4 @@
 langchain-google-genai
 streamlit
-fitz
+pymupdf
 frontend
