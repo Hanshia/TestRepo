@@ -1,6 +1,7 @@
 import streamlit as st
 from langchain_google_genai import ChatGoogleGenerativeAI
 import os
+import fitz  # PyMuPDF 라이브러리 (PDF 읽기용)
 
 st.session_state.language = '한국어'
 
@@ -15,13 +16,56 @@ client = ChatGoogleGenerativeAI(model="gemini-1.5-flash", api_key=os.environ.get
 
 # 애니 캐릭터와 그들의 정보 및 이미지 URL
 characters = {
-    "케로로": ["개구리중사", "https://i.namu.wiki/i/c1GTTKMxSQJhdu1ro8bu9KxQqe6csuMTxAA_V-TkxKS2D6CPzXFHXG8pG9PnAYeLFPOT-1vFSVDWmcEuT2fYTw.webp"],
-    "프리렌": ["프리렌", "https://i.namu.wiki/i/cgrB_jrULuNEpf8XoA4VxMLhz9gS1Q7-OnOsP6ITfl-ANLBb4Pby48kgYPzen5e1kPkx3EzeFsIbBFUtXc_KI8bkzppjryI4FXJbZOBvDcEW_sgzgTAo0uyfwK-Gu6sVC27RWQqAP0h_oMsCe3YjGg.webp"]
+    "keroro": ["개구리중사", "https://i.namu.wiki/i/c1GTTKMxSQJhdu1ro8bu9KxQqe6csuMTxAA_V-TkxKS2D6CPzXFHXG8pG9PnAYeLFPOT-1vFSVDWmcEuT2fYTw.webp"],
+    "friren": ["프리렌", "https://i.namu.wiki/i/cgrB_jrULuNEpf8XoA4VxMLhz9gS1Q7-OnOsP6ITfl-ANLBb4Pby48kgYPzen5e1kPkx3EzeFsIbBFUtXc_KI8bkzppjryI4FXJbZOBvDcEW_sgzgTAo0uyfwK-Gu6sVC27RWQqAP0h_oMsCe3YjGg.webp"]
 }
 
 # 사용자 아바타 이미지 URL
 user_avatar_url = "https://via.placeholder.com/50?text=User"
 assistant_avatar_url = "https://via.placeholder.com/50?text=Bot"
+
+# 특정 캐릭터의 대화 스타일을 로드하는 함수
+def load_character_files(character):
+    dialog_file = f"content/{character}/dialog.txt"
+    output_file = f"content/{character}/output.txt"
+    pdf_file = f"content/{character}/pd.pdf"  # 캐릭터 설정 문서 PDF
+
+    dialog_text = ""
+    output_text = ""
+    pdf_text = ""
+
+    # dialog.txt 읽기
+    if os.path.exists(dialog_file):
+        with open(dialog_file, "r", encoding="utf-8") as file:
+            dialog_text = file.read()
+    else:
+        dialog_text = f"[{dialog_file} 파일을 찾을 수 없습니다.]"
+
+    # output.txt 읽기
+    if os.path.exists(output_file):
+        with open(output_file, "r", encoding="utf-8") as file:
+            output_text = file.read()
+    else:
+        output_text = f"[{output_file} 파일을 찾을 수 없습니다.]"
+
+    # PDF 파일 읽기
+    if os.path.exists(pdf_file):
+        pdf_text = extract_text_from_pdf(pdf_file)
+    else:
+        pdf_text = f"[{pdf_file} 파일을 찾을 수 없습니다.]"
+
+    return dialog_text, output_text, pdf_text
+
+# PDF에서 텍스트를 추출하는 함수
+def extract_text_from_pdf(pdf_path):
+    text = ""
+    try:
+        with fitz.open(pdf_path) as doc:
+            for page in doc:
+                text += page.get_text("text") + "\n"
+    except Exception as e:
+        text = f"[PDF 읽기 오류: {str(e)}]"
+    return text.strip()
 
 # CSS 스타일 정의
 def chat_styles():
@@ -151,19 +195,29 @@ def display_chat_message(role, content, avatar_url):
 
 # 대화를 생성하는 함수
 def generate_conversation(language, character, user_input):
+    dialog_text, output_text, pdf_text = load_character_files(character)
     prompt = f"""
-    1. 당신은 지금 {character}의 역할을 연기하고 있습니다. 사용자의의 요구와 질문에 {character}의 말투와 스타일로 한국어로 응답하세요.
+    아래는 {character}와 다른 인물 간의 실제 대화 내용입니다:
+    {dialog_text}
 
-    2. 다음은 애니 캐릭터에 대한 정보 링크입니다.
-    [케로로]: [https://namu.wiki/w/%EC%BC%80%EB%A1%9C%EB%A1%9C].
-    [프리렌]: [https://namu.wiki/w/%ED%94%84%EB%A6%AC%EB%A0%8C].
+    아래는 {character}의 대화 패턴 분석 결과입니다:
+    {output_text}
+
+    아래는 {character}의 공식 설정 문서에서 추출한 정보입니다:
+    {pdf_text}
+
+    1. {pdf_text}에서 추출한 캐릭터의 상세한 성격과 전형적인 행동을 바탕으로, {output_text}에서 분석한 대화 패턴을 활용하여 프리렌의 말투와 행동을 재현한 응답을 생성하세요.
+    또한, {dialog_text} 파일에 있는 캐릭터와 다른 인물 간의 대화를 참고하여 보다 자연스러운 표현을 반영하세요. 없다면 2번 항목을 참고하세요.
+
+    2. 다음은 애니 캐릭터에 대한 정보 링크입니다. {output_text}과 {dialog_text}가 있다면 이 항목은 넘기세요.
+    [keroro]: [https://namu.wiki/w/%EC%BC%80%EB%A1%9C%EB%A1%9C].
+    [friren]: [https://namu.wiki/w/%ED%94%84%EB%A6%AC%EB%A0%8C].
     이 정보를 바탕으로, 질문에 답하거나 이 캐릭터로 역할을 연기하세요.
 
-    3. 사용자가 주제를 추천하길 원한다면, 최근 구글에서서 [특정 주제 분야, 예: 기술, 여행, 음식 등]와 관련된 인기 있는 주제를 검색하여 추천해 주세요.
+    3. 사용자가 주제를 추천하길 원한다면, 최근 구글에서 [특정 주제 분야, 예: 기술, 여행, 음식 등]와 관련된 인기 있는 주제를 검색하여 추천해 주세요.
 
-    4. 다음은 사용자의 블로그 링크입니다: [https://gunrestaurant.tistory.com/]. 제공된 블로그의 글 스타일을 분석한 후, 사용자가 입력한 주제로 동일한 스타일의 블로그 글을 작성해 주세요. 글의 길이는 약 500 단어로 작성해 주세요.
+    4. 사용자가 글의 개선하고 싶어하면 내용을 검토한 후, 명확성, 톤, 전반적인 품질을 향상시킬 수 있는 수정 사항을 제안해 주세요.
 
-    5. 사용자가 글의 개선하고 싶어하면 내용을 검토한 후, 명확성, 톤, 전반적인 품질을 향상시킬 수 있는 수정 사항을 제안해 주세요.
 
     사용자 입력: {user_input}
     """
@@ -212,17 +266,28 @@ if st.session_state.stage == 1:
     if selected_character:
         st.session_state.character = selected_character
         st.session_state.character_avatar_url = characters[selected_character][1]
+        dialog_text, output_text, pdf_text = load_character_files(character)
         # 첫 인사를 캐릭터 스타일에 맞게 생성
         first_message = generate_conversation(
             st.session_state.language, 
             selected_character, 
             f"""
-            1. 당신은 지금 {selected_character}의 역할을 연기하고 있습니다. 사용자가 처음 만났을 때 자연스러운 짧은 인사말을 {selected_character}의 말투와 스타일로 한국어로 응답하세요.
+            아래는 {character}와 다른 인물 간의 실제 대화 내용입니다:
+            {dialog_text}
 
-            2. 다음은 애니 캐릭터에 대한 정보 링크입니다.
-            [케로로]: [https://namu.wiki/w/%EC%BC%80%EB%A1%9C%EB%A1%9C].
-            [프리렌]: [https://namu.wiki/w/%ED%94%84%EB%A6%AC%EB%A0%8C].
-            이 정보를 바탕으로, 이 캐릭터로 역할을 연기하세요.
+            아래는 {character}의 대화 패턴 분석 결과입니다:
+            {output_text}
+
+            아래는 {character}의 공식 설정 문서에서 추출한 정보입니다:
+            {pdf_text}
+
+            1. frieren.pdf에서 추출한 캐릭터의 상세한 성격과 전형적인 행동을 바탕으로, {output_text}에서 분석한 대화 패턴을 활용하여 프리렌의 말투와 행동을 재현한, 사용자가 처음 만났을 때 자연스러운 짧은 인사말을 하세요.
+            또한, {dialog_text} 파일에 있는 캐릭터와 다른 인물 간의 대화를 참고하여 보다 자연스러운 표현을 반영하세요. 없다면 2번 항목을 참고하세요.
+
+            2. 다음은 애니 캐릭터에 대한 정보 링크입니다. {output_text}과 {dialog_text}가 있다면 이 항목은 넘기세요.
+            [keroro]: [https://namu.wiki/w/%EC%BC%80%EB%A1%9C%EB%A1%9C].
+            [friren]: [https://namu.wiki/w/%ED%94%84%EB%A6%AC%EB%A0%8C].
+            이 정보를 바탕으로, 질문에 답하거나 이 캐릭터로 역할을 연기하세요.
 
             3. 당신의 캐릭터가 아닌 다른 캐릭터를 인삿말에 언급하지 마세요.
             """
