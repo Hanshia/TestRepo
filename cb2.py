@@ -290,6 +290,10 @@ if st.session_state.stage == 1:
             이 정보를 바탕으로, 질문에 답하거나 이 캐릭터로 역할을 연기하세요.
 
             3. 당신의 캐릭터가 아닌 다른 캐릭터를 인삿말에 언급하지 마세요.
+
+            4. 반드시 한국어로 작성하세요.
+
+            5. 인사말만 작성하세요.
             """
         )
         st.session_state.messages.append({"role": "assistant", "content": first_message})
