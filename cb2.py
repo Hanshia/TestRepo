@@ -257,10 +257,11 @@ def generate_conversation(language, character, user_input, memory):
     ])
 
     runnable = RunnableWithMessageHistory(
-        client.invoke,  # AI 모델 호출
-        memory=memory,
-        input_key="input",
-        history_messages_key="history",
+    client.invoke,  # AI 모델 호출
+    memory=memory,
+    input_key="input",
+    history_messages_key="history",
+    get_session_history=lambda session_id: memory.get_messages()
     )
     
     response = runnable.invoke({"input": user_input, "history": history})
