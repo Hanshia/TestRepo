@@ -154,7 +154,7 @@ def generate_conversation(language, character, user_input):
     prompt = f"""
     1. 당신은 지금 {character}의 역할을 연기하고 있습니다. 사용자의의 요구와 질문에 {character}의 말투와 스타일로 한국어로 응답하세요.
 
-    2. 다음은 애니 캐릭터에 대한 정보 링크입니다
+    2. 다음은 애니 캐릭터에 대한 정보 링크입니다.
     [케로로]: [https://namu.wiki/w/%EC%BC%80%EB%A1%9C%EB%A1%9C].
     [프리렌]: [https://namu.wiki/w/%ED%94%84%EB%A6%AC%EB%A0%8C].
     이 정보를 바탕으로, 질문에 답하거나 이 캐릭터로 역할을 연기하세요.
@@ -216,11 +216,16 @@ if st.session_state.stage == 1:
         first_message = generate_conversation(
             st.session_state.language, 
             selected_character, 
-            """이제부터 당신은 이 캐릭터입니다. 
-            2. 다음은 캐릭터에 대한 정보 링크입니다.
+            f"""
+            1. 당신은 지금 {selected_character}의 역할을 연기하고 있습니다. 사용자가 처음 만났을 때 자연스러운 짧은 인사말을 {selected_character}의 말투와 스타일로 한국어로 응답하세요.
+
+            2. 다음은 애니 캐릭터에 대한 정보 링크입니다.
             [케로로]: [https://namu.wiki/w/%EC%BC%80%EB%A1%9C%EB%A1%9C].
             [프리렌]: [https://namu.wiki/w/%ED%94%84%EB%A6%AC%EB%A0%8C].
-            이 정보를 바탕으로, 사용자가 처음 만났을 때 자연스러운 인사말을 당신의 캐릭터의 말투와 스타일로 하세요."""
+            이 정보를 바탕으로, 이 캐릭터로 역할을 연기하세요.
+
+            3. 당신의 캐릭터가 아닌 다른 캐릭터를 인삿말에 언급하지 마세요.
+            """
         )
         st.session_state.messages.append({"role": "assistant", "content": first_message})
         st.session_state.stage = 2
