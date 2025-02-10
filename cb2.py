@@ -2,6 +2,7 @@ import streamlit as st
 from langchain_google_genai import ChatGoogleGenerativeAI
 import os
 import fitz  # PyMuPDF 라이브러리 (PDF 읽기용)
+from langchain.memory import ChatMessageHistory
 
 st.session_state.language = '한국어'
 
@@ -23,6 +24,14 @@ characters = {
 # 사용자 아바타 이미지 URL
 user_avatar_url = "https://via.placeholder.com/50?text=User"
 assistant_avatar_url = "https://via.placeholder.com/50?text=Bot"
+
+# 대화 이력 저장소 초기화
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = ChatMessageHistory()
+
+# 대화 메시지 저장 함수
+def save_message(role, content):
+    st.session_state.chat_history.add_message({"role": role, "content": content})
 
 # 특정 캐릭터의 대화 스타일을 로드하는 함수
 def load_character_files(character):
@@ -196,6 +205,7 @@ def display_chat_message(role, content, avatar_url):
 # 대화를 생성하는 함수
 def generate_conversation(language, character, user_input):
     dialog_text, output_text, pdf_text = load_character_files(character)
+    chat_history_text = "\n".join([f"{msg['role']}: {msg['content']}" for msg in st.session_state.chat_history.messages])
     prompt = f"""
     아래는 {character}와 다른 인물 간의 실제 대화 내용입니다:
     {dialog_text}
@@ -224,6 +234,8 @@ def generate_conversation(language, character, user_input):
 
     7. 사용자 입력만으로는 어떤 응답을 생성해야 할지 알 수 없다면, 캐릭터의 스타일에 따른 아무 응답이나 하세요.
 
+    이전 대화 내용:
+    {chat_history_text}
 
     사용자 입력: {user_input}
     """
@@ -308,12 +320,13 @@ if st.session_state.stage == 1:
 
 # 대화 처리 단계
 elif st.session_state.stage == 2:
-    user_input = st.chat_input("대화를 입력하세요:", key="input_conversation")
+    user_input = st.text_input("대화를 입력하세요:")
     if user_input:
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
-            response = generate_conversation(st.session_state.language, st.session_state.character, user_input)
-        st.session_state.messages.append({"role": "assistant", "content": response})
+        save_message("user", user_input)
+        response = generate_conversation(user_input)
+        save_message("assistant", response)
+        st.rerun()
+
 
 # 대화 히스토리 다시 표시
 chat_container.empty()  # 이전 메시지 지우기
