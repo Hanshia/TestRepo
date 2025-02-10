@@ -323,7 +323,7 @@ elif st.session_state.stage == 2:
     user_input = st.text_input("대화를 입력하세요:")
     if user_input:
         save_message("user", user_input)
-        response = generate_conversation(st.session_state.language, st.session_state.character, user_input)
+        response = generate_conversation(user_input)
         save_message("assistant", response)
         st.rerun()
 
