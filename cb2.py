@@ -7,7 +7,7 @@ from langchain.memory import ChatMessageHistory
 st.session_state.language = '한국어'
 
 # Streamlit 설정
-st.set_page_config(page_title="블로그 도와줘!", page_icon=":house_with_garden:")
+st.set_page_config(page_title="캐릭터 챗봇", page_icon=":house_with_garden:")
 
 # 환경 변수 설정
 os.environ["GOOGLE_API_KEY"] = st.secrets["MY_GOOGLE_API_KEY"]
@@ -245,7 +245,7 @@ def generate_conversation(language, character, user_input):
     return response.content
 
 # Streamlit 애플리케이션 시작
-st.title("블로그 도와줘!")
+st.title("캐릭터 챗봇")
 
 # CSS 스타일 적용
 chat_styles()
