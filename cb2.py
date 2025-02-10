@@ -11,7 +11,7 @@ st.set_page_config(page_title="블로그 도와줘!", page_icon=":house_with_gar
 os.environ["GOOGLE_API_KEY"] = st.secrets["MY_GOOGLE_API_KEY"]
 
 # Google Generative AI 설정
-client = ChatGoogleGenerativeAI(model="gemini-pro", api_key=os.environ.get("GOOGLE_API_KEY"))
+client = ChatGoogleGenerativeAI(model="gemini-1.5-flash", api_key=os.environ.get("GOOGLE_API_KEY"))
 
 # 애니 캐릭터와 그들의 정보 및 이미지 URL
 characters = {
@@ -168,8 +168,14 @@ def generate_conversation(language, character, user_input):
 
     사용자 입력: {user_input}
     """
-    response = client.invoke(prompt)
-    return response.content
+    response = client.chat.completions.create(
+        model="gemini-1.5-flash",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt}
+        ]
+    )
+    return response.choices[0].message.content
 
 # Streamlit 애플리케이션 시작
 st.title("블로그 도와줘!")
