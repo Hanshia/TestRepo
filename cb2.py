@@ -163,7 +163,7 @@ def generate_conversation(language, character, user_input):
 
     4. 다음은 사용자의 블로그 링크입니다: [https://gunrestaurant.tistory.com/]. 제공된 블로그의 글 스타일을 분석한 후, 사용자가 입력한 주제로 동일한 스타일의 블로그 글을 작성해 주세요. 글의 길이는 약 500 단어로 작성해 주세요.
 
-    5. 사용자가 글의 개선하고 싶어하면 내용을 검토한 후, 명확성, 톤, 전반적인 품질을 향상시킬 수 있는 수정 사항을 제안해 주세요
+    5. 사용자가 글의 개선하고 싶어하면 내용을 검토한 후, 명확성, 톤, 전반적인 품질을 향상시킬 수 있는 수정 사항을 제안해 주세요.
 
     사용자 입력: {user_input}
     """
@@ -212,8 +212,13 @@ if st.session_state.stage == 1:
     if selected_character:
         st.session_state.character = selected_character
         st.session_state.character_avatar_url = characters[selected_character][1]
-        request_message = f"안녕하세요! {selected_character}입니다. 무엇을 도와드릴까요?"
-        st.session_state.messages.append({"role": "assistant", "content": request_message})
+        # 첫 인사를 캐릭터 스타일에 맞게 생성
+        first_message = generate_conversation(
+            st.session_state.language, 
+            selected_character, 
+            "이제부터 너는 이 캐릭터야. 사용자가 처음 만났을 때 자연스러운 인사말을 캐릭터 스타일로 해줘."
+        )
+        st.session_state.messages.append({"role": "assistant", "content": first_message})
         st.session_state.stage = 2
         st.rerun()
 
