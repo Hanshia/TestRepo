@@ -6,6 +6,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_core.runnables import Runnable
 
 st.session_state.language = '한국어'
 
@@ -256,13 +257,14 @@ def generate_conversation(language, character, user_input, memory):
     """)
     ])
 
-    runnable = RunnableWithMessageHistory(
-    client.invoke,  # AI 모델 호출
+    runnable: Runnable = RunnableWithMessageHistory(
+    runnable=client,  # ✅ 올바른 Runnable 객체 전달
     memory=memory,
     input_key="input",
     history_messages_key="history",
     get_session_history=lambda session_id: memory.get_messages()
     )
+    runnable_sync: Runnable = runnable.with_listeners(on_end=self.on_end)
     
     response = runnable.invoke({"input": user_input, "history": history})
     return response.content
