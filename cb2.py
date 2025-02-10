@@ -16,7 +16,7 @@ client = ChatGoogleGenerativeAI(model="gemini-1.5-flash", api_key=os.environ.get
 # 애니 캐릭터와 그들의 정보 및 이미지 URL
 characters = {
     "케로로": ["개구리중사", "https://i.namu.wiki/i/c1GTTKMxSQJhdu1ro8bu9KxQqe6csuMTxAA_V-TkxKS2D6CPzXFHXG8pG9PnAYeLFPOT-1vFSVDWmcEuT2fYTw.webp"],
-    "코난": ["명탐정 코난", "https://i.namu.wiki/i/Tf8RK2-Zcr78evjdh9AzcnmL0c9KZvikc5mawtLMBjukOPqlJzRnN23MSJfwwNbvu0UGHyJjjnt3x519eqOA-g.webp"]
+    "프리렌": ["프리렌", "https://i.namu.wiki/i/cgrB_jrULuNEpf8XoA4VxMLhz9gS1Q7-OnOsP6ITfl-ANLBb4Pby48kgYPzen5e1kPkx3EzeFsIbBFUtXc_KI8bkzppjryI4FXJbZOBvDcEW_sgzgTAo0uyfwK-Gu6sVC27RWQqAP0h_oMsCe3YjGg.webp"]
 }
 
 # 사용자 아바타 이미지 URL
@@ -156,8 +156,7 @@ def generate_conversation(language, character, user_input):
 
     2. 다음은 애니 캐릭터에 대한 정보 링크입니다
     [케로로]: [https://namu.wiki/w/%EC%BC%80%EB%A1%9C%EB%A1%9C].
-    [코난]: [https://namu.wiki/w/%EC%97%90%EB%8F%84%EA%B0%80%EC%99%80%20%EC%BD%94%EB%82%9C], 말투는 반말로 해주세요.
-    [코난]의 명대사: [https://namu.wiki/w/%EB%AA%85%ED%83%90%EC%A0%95%20%EC%BD%94%EB%82%9C/%EB%AA%85%EB%8C%80%EC%82%AC]
+    [프리렌]: [https://namu.wiki/w/%ED%94%84%EB%A6%AC%EB%A0%8C].
     이 정보를 바탕으로, 질문에 답하거나 이 캐릭터로 역할을 연기하세요.
 
     3. 사용자가 주제를 추천하길 원한다면, 최근 구글에서서 [특정 주제 분야, 예: 기술, 여행, 음식 등]와 관련된 인기 있는 주제를 검색하여 추천해 주세요.
