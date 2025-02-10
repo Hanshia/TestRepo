@@ -35,10 +35,16 @@ class CustomChatMemory(BaseChatMessageHistory):
         self.chat_history = ChatMessageHistory()
 
     def add_message(self, role: str, content: str):
+        """대화 기록에 메시지 추가"""
         self.chat_history.add_message(role, content)
 
     def get_messages(self):
+        """대화 기록 가져오기"""
         return self.chat_history.messages
+
+    def clear(self):
+        """대화 기록 초기화"""
+        self.chat_history = ChatMessageHistory()
 
 
 # 특정 캐릭터의 대화 스타일을 로드하는 함수
