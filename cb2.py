@@ -220,6 +220,8 @@ def generate_conversation(language, character, user_input):
 
     5. 반드시 응답만 작성하세요.
 
+    6. 사용자 입력만으로는 어떤 응답을 생성해야 할지 알 수 없다면, 캐릭터의 스타일에 따른 아무 응답이나 하세요.
+
 
     사용자 입력: {user_input}
     """
