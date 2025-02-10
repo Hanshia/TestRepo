@@ -341,7 +341,8 @@ if st.session_state.stage == 1:
             4. 반드시 한국어로 작성하세요. 만약 한자와 일본어가 응답에 포함되어 있다면, 한국어로 번역하세요.
 
             5. 인사말만 작성하세요.
-            """
+            """,
+            memory
         )
         st.session_state.messages.append({"role": "assistant", "content": first_message})
         st.session_state.stage = 2
