@@ -1,5 +1,5 @@
 import streamlit as st
-from openai import OpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 import os
 
 st.session_state.language = '한국어'
@@ -8,12 +8,10 @@ st.session_state.language = '한국어'
 st.set_page_config(page_title="블로그 도와줘!", page_icon=":house_with_garden:")
 
 # 환경 변수 설정
-os.environ["OPENAI_API_KEY"] = ""
+os.environ["GOOGLE_API_KEY"] = st.secrets["MY_GOOGLE_API_KEY"]
 
-# OpenAI API 키 설정
-client = OpenAI(
-   api_key=os.environ.get("OPENAI_API_KEY")
-)
+# Google Generative AI 설정
+client = ChatGoogleGenerativeAI(model="gemini-pro", api_key=os.environ.get("GOOGLE_API_KEY"))
 
 # 애니 캐릭터와 그들의 정보 및 이미지 URL
 characters = {
@@ -170,20 +168,11 @@ def generate_conversation(language, character, user_input):
 
     사용자 입력: {user_input}
     """
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": prompt}
-        ]
-    )
-    return response.choices[0].message.content
+    response = client.invoke(prompt)
+    return response.content
 
 # Streamlit 애플리케이션 시작
 st.title("블로그 도와줘!")
-
-# CSS 스타일 적용
-chat_styles()
 
 # 세션 상태 초기화
 if "messages" not in st.session_state:
@@ -193,30 +182,14 @@ if "messages" not in st.session_state:
     st.session_state.character_avatar_url = assistant_avatar_url
     st.session_state.stage = 1
 
-# 대화 히스토리 표시
-chat_container = st.empty()
-with chat_container.container():
-    st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
-    for msg in st.session_state.messages:
-        display_chat_message(msg["role"], msg["content"], st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
-    st.markdown('</div></div>', unsafe_allow_html=True)
-
 # 캐릭터 선택 단계
 if st.session_state.stage == 1:
     selected_character = None
-    st.markdown('<div class="member-selection">', unsafe_allow_html=True)
     st.markdown("<h3>캐릭터를 선택하세요:</h3>", unsafe_allow_html=True)
     for character, info in characters.items():
-        character_key = f"button_{character}"
-        if st.button(f"{character} 선택", key=f"{character_key}_button"):
+        if st.button(f"{character} 선택"):
             selected_character = character
             break
-        st.markdown(f"""
-        <div class="member-card" id="{character_key}">
-            <img src="{info[1]}" class="chat-avatar">
-            <span>{character}</span>
-        </div>
-        """, unsafe_allow_html=True)
 
     if selected_character:
         st.session_state.character = selected_character
@@ -235,10 +208,7 @@ elif st.session_state.stage == 2:
             response = generate_conversation(st.session_state.language, st.session_state.character, user_input)
         st.session_state.messages.append({"role": "assistant", "content": response})
 
-# 대화 히스토리 다시 표시
-chat_container.empty()  # 이전 메시지 지우기
-with chat_container.container():
-    st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
-    for msg in st.session_state.messages:
-        display_chat_message(msg["role"], msg["content"], st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
-    st.markdown('</div></div>', unsafe_allow_html=True)
+# 대화 히스토리 표시
+for msg in st.session_state.messages:
+    avatar_url = st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url
+    st.markdown(f"**{msg['role'].capitalize()}**: {msg['content']}")
