@@ -217,6 +217,11 @@ def display_chat_message(role, content, avatar_url):
     </div>
     """, unsafe_allow_html=True)
 
+    # on_end를 함수로 정의
+def on_end(result):
+    """대화 종료 시 실행할 함수"""
+    print("Conversation Ended:", result)
+
 # 대화를 생성하는 함수
 def generate_conversation(language, character, user_input, memory):
     dialog_text, output_text, pdf_text = load_character_files(character)
@@ -258,13 +263,13 @@ def generate_conversation(language, character, user_input, memory):
     ])
 
     runnable: Runnable = RunnableWithMessageHistory(
-    runnable=client,  # ✅ 올바른 Runnable 객체 전달
-    memory=memory,
-    input_key="input",
-    history_messages_key="history",
-    get_session_history=lambda session_id: memory.get_messages()
+        runnable=client,  # ✅ 올바른 Runnable 객체 전달
+        memory=memory,
+        input_key="input",
+        history_messages_key="history",
+        get_session_history=lambda session_id: memory.get_messages()
     )
-    runnable_sync: Runnable = runnable.with_listeners(on_end=self.on_end)
+    runnable_sync: Runnable = runnable.with_listeners(on_end=on_end)
     
     response = runnable.invoke({"input": user_input, "history": history})
     return response.content
