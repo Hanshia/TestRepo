@@ -227,6 +227,8 @@ def generate_conversation(language, character, user_input, memory):
     dialog_text, output_text, pdf_text = load_character_files(character)
     history = memory.get_messages()
 
+    session_id = st.session_state.get("session_id", "default_session")
+
     prompt = ChatPromptTemplate.from_messages([
         MessagesPlaceholder(variable_name="history"),
         ("user", f"""
