@@ -26,9 +26,9 @@ assistant_avatar_url = "https://via.placeholder.com/50?text=Bot"
 
 # 특정 캐릭터의 대화 스타일을 로드하는 함수
 def load_character_files(character):
-    dialog_file = f"content/{character}/dialog.txt"
-    output_file = f"content/{character}/output.txt"
-    pdf_file = f"content/{character}/pd.pdf"  # 캐릭터 설정 문서 PDF
+    dialog_file = f"content/text/{character}/dialog.txt"
+    output_file = f"content/text/{character}/output.txt"
+    pdf_file = f"content/text/{character}/pd.pdf"  # 캐릭터 설정 문서 PDF
 
     dialog_text = ""
     output_text = ""
@@ -253,13 +253,13 @@ if st.session_state.stage == 1:
     st.markdown("<h3>캐릭터를 선택하세요:</h3>", unsafe_allow_html=True)
     for character, info in characters.items():
         character_key = f"button_{character}"
-        if st.button(f"{character} 선택", key=f"{character_key}_button"):
+        if st.button(f"{info[0]} 선택", key=f"{character_key}_button"):
             selected_character = character
             break
         st.markdown(f"""
         <div class="member-card" id="{character_key}">
             <img src="{info[1]}" class="chat-avatar">
-            <span>{character}</span>
+            <span>{info[0]}</span>
         </div>
         """, unsafe_allow_html=True)
 
