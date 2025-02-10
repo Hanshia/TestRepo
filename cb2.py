@@ -284,19 +284,19 @@ if st.session_state.stage == 1:
     if selected_character:
         st.session_state.character = selected_character
         st.session_state.character_avatar_url = characters[selected_character][1]
-        dialog_text, output_text, pdf_text = load_character_files(character)
+        dialog_text, output_text, pdf_text = load_character_files(selected_character)
         # 첫 인사를 캐릭터 스타일에 맞게 생성
         first_message = generate_conversation(
             st.session_state.language, 
             selected_character, 
             f"""
-            아래는 {character}와 다른 인물 간의 실제 대화 내용입니다:
+            아래는 {selected_character}와 다른 인물 간의 실제 대화 내용입니다:
             {dialog_text}
 
-            아래는 {character}의 대화 패턴 분석 결과입니다:
+            아래는 {selected_character}의 대화 패턴 분석 결과입니다:
             {output_text}
 
-            아래는 {character}의 공식 설정 문서에서 추출한 정보입니다:
+            아래는 {selected_character}의 공식 설정 문서에서 추출한 정보입니다:
             {pdf_text}
 
             1. {pdf_text}에서 추출한 캐릭터의 상세한 성격과 전형적인 행동을 바탕으로, {output_text}에서 분석한 대화 패턴을 활용하여 캐릭터의 말투와 행동을 재현한 짧은 인삿말을 생성하세요.
