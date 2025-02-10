@@ -28,7 +28,7 @@ assistant_avatar_url = "https://via.placeholder.com/50?text=Bot"
 def load_character_files(character):
     dialog_file = f"content/{character}/dialog.txt"
     output_file = f"content/{character}/output.txt"
-    pdf_file = f"content/{character}/pd.pdf"  # 캐릭터 설정 문서 PDF d
+    pdf_file = f"content/{character}/pd.pdf"  # 캐릭터 설정 문서 PDF
 
     dialog_text = ""
     output_text = ""
