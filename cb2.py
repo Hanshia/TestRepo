@@ -174,6 +174,9 @@ def generate_conversation(language, character, user_input):
 # Streamlit 애플리케이션 시작
 st.title("블로그 도와줘!")
 
+# CSS 스타일 적용
+chat_styles()
+
 # 세션 상태 초기화
 if "messages" not in st.session_state:
     st.session_state.messages = []
