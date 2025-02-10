@@ -2,6 +2,10 @@ import streamlit as st
 from langchain_google_genai import ChatGoogleGenerativeAI
 import os
 import fitz  # PyMuPDF 라이브러리 (PDF 읽기용)
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_community.chat_message_histories import ChatMessageHistory
+from langchain_core.chat_history import BaseChatMessageHistory
+from langchain_core.runnables.history import RunnableWithMessageHistory
 
 st.session_state.language = '한국어'
 
@@ -23,6 +27,19 @@ characters = {
 # 사용자 아바타 이미지 URL
 user_avatar_url = "https://via.placeholder.com/50?text=User"
 assistant_avatar_url = "https://via.placeholder.com/50?text=Bot"
+
+# 대화 기록 관리
+class CustomChatMemory(BaseChatMessageHistory):
+    def __init__(self, session_id: str):
+        self.session_id = session_id
+        self.chat_history = ChatMessageHistory()
+
+    def add_message(self, role: str, content: str):
+        self.chat_history.add_message(role, content)
+
+    def get_messages(self):
+        return self.chat_history.messages
+
 
 # 특정 캐릭터의 대화 스타일을 로드하는 함수
 def load_character_files(character):
@@ -194,9 +211,13 @@ def display_chat_message(role, content, avatar_url):
     """, unsafe_allow_html=True)
 
 # 대화를 생성하는 함수
-def generate_conversation(language, character, user_input):
+def generate_conversation(language, character, user_input, memory):
     dialog_text, output_text, pdf_text = load_character_files(character)
-    prompt = f"""
+    history = memory.get_messages()
+
+    prompt = ChatPromptTemplate.from_messages([
+        MessagesPlaceholder(variable_name="history"),
+        ("user", f"""
     아래는 {character}와 다른 인물 간의 실제 대화 내용입니다:
     {dialog_text}
 
@@ -226,8 +247,17 @@ def generate_conversation(language, character, user_input):
 
 
     사용자 입력: {user_input}
-    """
-    response = client.invoke(prompt)
+    """)
+    ])
+
+    runnable = RunnableWithMessageHistory(
+        client.invoke,  # AI 모델 호출
+        memory=memory,
+        input_key="input",
+        history_messages_key="history",
+    )
+    
+    response = runnable.invoke({"input": user_input, "history": history})
     return response.content
 
 # Streamlit 애플리케이션 시작
@@ -237,12 +267,17 @@ st.title("블로그 도와줘!")
 chat_styles()
 
 # 세션 상태 초기화
+if "session_id" not in st.session_state:
+    st.session_state.session_id = os.urandom(16).hex()
 if "messages" not in st.session_state:
     st.session_state.messages = []
     st.session_state.character = None
     st.session_state.language = "한국어"
     st.session_state.character_avatar_url = assistant_avatar_url
     st.session_state.stage = 1
+
+# 대화 기록 관리 객체 생성
+memory = CustomChatMemory(st.session_state.session_id)
 
 # 대화 히스토리 표시
 chat_container = st.empty()
@@ -306,14 +341,13 @@ if st.session_state.stage == 1:
         st.session_state.stage = 2
         st.rerun()
 
-# 대화 처리 단계
-elif st.session_state.stage == 2:
-    user_input = st.chat_input("대화를 입력하세요:", key="input_conversation")
-    if user_input:
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
-            response = generate_conversation(st.session_state.language, st.session_state.character, user_input)
-        st.session_state.messages.append({"role": "assistant", "content": response})
+# 사용자 입력 처리
+if user_input := st.chat_input("대화를 입력하세요:"):
+    memory.add_message("user", user_input)
+    with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
+        response = generate_conversation(st.session_state.language, st.session_state.character, user_input, memory)
+    memory.add_message("assistant", response)
+    st.rerun()
 
 # 대화 히스토리 다시 표시
 chat_container.empty()  # 이전 메시지 지우기
