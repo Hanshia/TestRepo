@@ -329,6 +329,7 @@ elif st.session_state.stage == 2:
     if user_input:
         st.session_state.messages.append({"role": "user", "content": user_input})
         save_message("user", user_input)
+        st.rerun()
         with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
             response = generate_conversation(st.session_state.language, st.session_state.character, user_input)
             save_message("assistant", response)
