@@ -316,6 +316,7 @@ if st.session_state.stage == 1:
         )
         st.session_state.messages.append({"role": "assistant", "content": first_message})
         st.session_state.stage = 2
+        save_message("assistant", first_message)
         st.rerun()
 
 # 대화 처리 단계
@@ -323,8 +324,10 @@ elif st.session_state.stage == 2:
     user_input = st.chat_input("대화를 입력하세요:", key="input_conversation")
     if user_input:
         st.session_state.messages.append({"role": "user", "content": user_input})
+        save_message("user", user_input)
         with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
             response = generate_conversation(st.session_state.language, st.session_state.character, user_input)
+            save_message("assistant", response)
         st.session_state.messages.append({"role": "assistant", "content": response})
 
 
