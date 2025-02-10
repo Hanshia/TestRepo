@@ -182,14 +182,30 @@ if "messages" not in st.session_state:
     st.session_state.character_avatar_url = assistant_avatar_url
     st.session_state.stage = 1
 
+# 대화 히스토리 표시
+chat_container = st.empty()
+with chat_container.container():
+    st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
+    for msg in st.session_state.messages:
+        display_chat_message(msg["role"], msg["content"], st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
+    st.markdown('</div></div>', unsafe_allow_html=True)
+
 # 캐릭터 선택 단계
 if st.session_state.stage == 1:
     selected_character = None
+    st.markdown('<div class="member-selection">', unsafe_allow_html=True)
     st.markdown("<h3>캐릭터를 선택하세요:</h3>", unsafe_allow_html=True)
     for character, info in characters.items():
-        if st.button(f"{character} 선택"):
+        character_key = f"button_{character}"
+        if st.button(f"{character} 선택", key=f"{character_key}_button"):
             selected_character = character
             break
+        st.markdown(f"""
+        <div class="member-card" id="{character_key}">
+            <img src="{info[1]}" class="chat-avatar">
+            <span>{character}</span>
+        </div>
+        """, unsafe_allow_html=True)
 
     if selected_character:
         st.session_state.character = selected_character
@@ -208,7 +224,10 @@ elif st.session_state.stage == 2:
             response = generate_conversation(st.session_state.language, st.session_state.character, user_input)
         st.session_state.messages.append({"role": "assistant", "content": response})
 
-# 대화 히스토리 표시
-for msg in st.session_state.messages:
-    avatar_url = st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url
-    st.markdown(f"**{msg['role'].capitalize()}**: {msg['content']}")
+# 대화 히스토리 다시 표시
+chat_container.empty()  # 이전 메시지 지우기
+with chat_container.container():
+    st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
+    for msg in st.session_state.messages:
+        display_chat_message(msg["role"], msg["content"], st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
+    st.markdown('</div></div>', unsafe_allow_html=True)
