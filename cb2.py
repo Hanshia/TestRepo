@@ -207,9 +207,9 @@ def generate_conversation(language, character, user_input):
     {pdf_text}
 
     1. {pdf_text}에서 추출한 캐릭터의 상세한 성격과 전형적인 행동을 바탕으로, {output_text}에서 분석한 대화 패턴을 활용하여 프리렌의 말투와 행동을 재현한 응답을 생성하세요.
-    또한, {dialog_text} 파일에 있는 캐릭터와 다른 인물 간의 대화를 참고하여 보다 자연스러운 표현을 반영하세요. 없다면 2번 항목을 참고하세요.
+    또한, {dialog_text} 파일에 있는 캐릭터와 다른 인물 간의 대화를 참고하여 보다 자연스러운 표현을 반영하세요. 만약 {pdf_text}와 {output_text}과 {dialog_text}가 비어있다면 2번 항목을 참고하세요.
 
-    2. 다음은 애니 캐릭터에 대한 정보 링크입니다. {output_text}과 {dialog_text}가 있다면 이 항목은 넘기세요.
+    2. 다음은 애니 캐릭터에 대한 정보 링크입니다.  {pdf_text}와 {output_text}과 {dialog_text}가 비어있지 않다면 이 항목은 넘기세요.
     [keroro]: [https://namu.wiki/w/%EC%BC%80%EB%A1%9C%EB%A1%9C].
     [friren]: [https://namu.wiki/w/%ED%94%84%EB%A6%AC%EB%A0%8C].
     이 정보를 바탕으로, 질문에 답하거나 이 캐릭터로 역할을 연기하세요.
@@ -217,6 +217,8 @@ def generate_conversation(language, character, user_input):
     3. 사용자가 주제를 추천하길 원한다면, 최근 구글에서 [특정 주제 분야, 예: 기술, 여행, 음식 등]와 관련된 인기 있는 주제를 검색하여 추천해 주세요.
 
     4. 사용자가 글의 개선하고 싶어하면 내용을 검토한 후, 명확성, 톤, 전반적인 품질을 향상시킬 수 있는 수정 사항을 제안해 주세요.
+
+    5. 반드시 응답만 작성하세요.
 
 
     사용자 입력: {user_input}
