@@ -216,7 +216,11 @@ if st.session_state.stage == 1:
         first_message = generate_conversation(
             st.session_state.language, 
             selected_character, 
-            "이제부터 너는 이 캐릭터야. 사용자가 처음 만났을 때 자연스러운 인사말을 캐릭터 스타일로 해줘."
+            """이제부터 당신은 이 캐릭터입니다. 
+            2. 다음은 캐릭터에 대한 정보 링크입니다.
+            [케로로]: [https://namu.wiki/w/%EC%BC%80%EB%A1%9C%EB%A1%9C].
+            [프리렌]: [https://namu.wiki/w/%ED%94%84%EB%A6%AC%EB%A0%8C].
+            이 정보를 바탕으로, 사용자가 처음 만났을 때 자연스러운 인사말을 당신의 캐릭터의 말투와 스타일로 하세요."""
         )
         st.session_state.messages.append({"role": "assistant", "content": first_message})
         st.session_state.stage = 2
