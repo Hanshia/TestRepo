@@ -271,7 +271,10 @@ def generate_conversation(language, character, user_input, memory):
     )
     runnable_sync: Runnable = runnable.with_listeners(on_end=on_end)
     
-    response = runnable.invoke({"input": user_input, "history": history})
+    response = runnable.invoke(
+        {"input": user_input, "history": history}, 
+        config={"configurable": {"session_id": session_id}}
+    )
     return response.content
 
 # Streamlit 애플리케이션 시작
