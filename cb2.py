@@ -168,14 +168,8 @@ def generate_conversation(language, character, user_input):
 
     사용자 입력: {user_input}
     """
-    response = client.chat.completions.create(
-        model="gemini-1.5-flash",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": prompt}
-        ]
-    )
-    return response.choices[0].message.content
+    response = client.invoke(prompt)
+    return response.content
 
 # Streamlit 애플리케이션 시작
 st.title("블로그 도와줘!")
