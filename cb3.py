@@ -180,32 +180,8 @@ def chat_styles():
     </style>
     """, unsafe_allow_html=True)
 
-# 한 글자씩 출력하는 함수
-def typewriter_effect(role, container, text, avatar_url):
-    output = ""
-    bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
-    message_class = "user-message" if role == "user" else "assistant-message"
-    for char in text:
-        output += char
-        container.markdown(f"""
-        <div class="chat-bubble {bubble_class} {message_class}">
-            <img src="{avatar_url}" class="chat-avatar">
-            <div>{output}</div>
-        </div>
-        """, unsafe_allow_html=True)
-        time.sleep(0.05)  # 속도 조절
-        container.empty()  # 기존 UI를 지우고 다시 출력
-
-    # 최종적으로 완성된 텍스트를 다시 출력 (깜빡임 방지)
-    container.markdown(f"""
-    <div class="chat-bubble assistant-bubble assistant-message">
-        <img src="{avatar_url}" class="chat-avatar">
-        <div>{output}</div>
-    </div>
-    """, unsafe_allow_html=True)
-
 # 말풍선 스타일의 메시지 표시 함수
-def display_chat_message(role, content, avatar_url):
+def display_chat_message(container, role, content, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
     st.markdown(f"""
@@ -214,6 +190,8 @@ def display_chat_message(role, content, avatar_url):
         <div>{content}</div>
     </div>
     """, unsafe_allow_html=True)
+    time.sleep(0.05)  # 속도 조절
+    container.empty()  # 기존 UI를 지우고 다시 출력
 
 # LangChain 프롬프트 템플릿 설정
 chat_prompt = ChatPromptTemplate.from_messages([
@@ -317,7 +295,6 @@ if st.session_state.stage == 1:
 # 대화 진행
 elif st.session_state.stage == 2:
     user_input = st.chat_input("대화를 입력하세요:")
-
     if user_input:
         # 유저 입력을 즉시 메시지 목록에 추가하여 표시
         st.session_state.messages.append({"role": "user", "content": user_input})
@@ -327,18 +304,23 @@ elif st.session_state.stage == 2:
         with chat_container.container():
             st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
             for msg in st.session_state.messages:
-                display_chat_message(msg["role"], msg["content"], 
+                display_chat_message(chat_container, msg["role"], msg["content"], 
                                      st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
             st.markdown('</div></div>', unsafe_allow_html=True)
 
         # 봇 응답 생성
         with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
             response = get_response(st.session_state.character, user_input)
-
-        bot_message_container = st.empty()
-        # 한 글자씩 출력
-        typewriter_effect("assistant", bot_message_container, response, st.session_state.character_avatar_url)
-
+        
         # 봇의 응답을 추가
         st.session_state.messages.append({"role": "assistant", "content": response})
+
+        # 다시 채팅 UI 업데이트 (봇의 메시지를 추가)
+        chat_container.empty()
+        with chat_container.container():
+            st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
+            for msg in st.session_state.messages:
+                display_chat_message(chat_container, msg["role"], msg["content"], 
+                                     st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
+            st.markdown('</div></div>', unsafe_allow_html=True)
 
