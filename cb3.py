@@ -189,6 +189,21 @@ def display_chat_message(role, content, avatar_url):
         <img src="{avatar_url}" class="chat-avatar">
         <div>{content}</div>
     </div>
+    <script>
+    let text = "{content}";
+    let container = document.getElementById("typing-container");
+    container.innerHTML = "";  // 초기화
+
+    let i = 0;
+    function typeEffect() {{
+        if (i < text.length) {{
+            container.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(typeEffect, 100);  // 100ms 간격으로 타이핑
+        }}
+    }}
+    typeEffect();
+    </script>
     """, unsafe_allow_html=True)
 
 # LangChain 프롬프트 템플릿 설정
