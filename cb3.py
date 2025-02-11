@@ -295,7 +295,14 @@ elif st.session_state.stage == 2:
     if user_input:
         st.session_state.messages.append({"role": "user", "content": user_input})
         display_chat_message("user", user_input, user_avatar_url)
+        st.markdown('</div></div>', unsafe_allow_html=True)
         with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
             response = get_response(st.session_state.character, user_input)
             st.session_state.messages.append({"role": "assistant", "content": response})
 
+chat_container.empty()  # 이전 메시지 지우기
+with chat_container.container():
+    st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
+    for msg in st.session_state.messages:
+        display_chat_message(msg["role"], msg["content"], st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
+    st.markdown('</div></div>', unsafe_allow_html=True)
