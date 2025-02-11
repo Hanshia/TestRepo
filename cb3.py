@@ -291,17 +291,14 @@ if st.session_state.stage == 1:
 
 # 대화 진행
 elif st.session_state.stage == 2:
-    chat_container = st.container()
-    with chat_container:
-        for msg in st.session_state.messages:
-            st.markdown(f"**{msg['role'].capitalize()}**: {msg['content']}")
-
-    user_input = st.chat_input("대화를 입력하세요:")
+    user_input = st.chat_input("대화를 입력하세요:", key="input_conversation")
     if user_input:
         st.session_state.messages.append({"role": "user", "content": user_input})
-        response = get_response(st.session_state.character, user_input)
-        st.session_state.messages.append({"role": "assistant", "content": response})
         st.rerun()
+    if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
+        with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
+            response = get_response(st.session_state.character, user_input)
+            st.session_state.messages.append({"role": "assistant", "content": response})
 
 chat_container.empty()  # 이전 메시지 지우기
 with chat_container.container():
