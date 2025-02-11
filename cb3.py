@@ -249,11 +249,9 @@ chat_styles()
 if "messages" not in st.session_state:
     st.session_state.messages = []
     st.session_state.character = None
+    st.session_state.language = "한국어"
     st.session_state.character_avatar_url = assistant_avatar_url
     st.session_state.stage = 1
-
-# 채팅 UI 초기화
-chat_container = st.empty()
 
 # 대화 히스토리 표시
 chat_container = st.empty()
@@ -266,10 +264,19 @@ with chat_container.container():
 # 캐릭터 선택
 if st.session_state.stage == 1:
     selected_character = None
-    st.markdown("### 캐릭터를 선택하세요:")
+    st.markdown('<div class="member-selection">', unsafe_allow_html=True)
+    st.markdown("<h3>캐릭터를 선택하세요:</h3>", unsafe_allow_html=True)
     for character, info in characters.items():
-        if st.button(info[0]):
+        character_key = f"button_{character}"
+        if st.button(f"{info[0]} 선택", key=f"{character_key}_button"):
             selected_character = character
+            break
+        st.markdown(f"""
+        <div class="member-card" id="{character_key}">
+            <img src="{info[1]}" class="chat-avatar">
+            <span>{info[0]}</span>
+        </div>
+        """, unsafe_allow_html=True)
 
     if selected_character:
         st.session_state.character = selected_character
@@ -284,7 +291,6 @@ if st.session_state.stage == 1:
 
 # 대화 진행
 elif st.session_state.stage == 2:
-    input_container = st.empty()
     user_input = st.chat_input("대화를 입력하세요:", key="input_conversation")
     if user_input:
         st.session_state.messages.append({"role": "user", "content": user_input})
@@ -292,7 +298,7 @@ elif st.session_state.stage == 2:
     if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
         with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
             response = get_response(st.session_state.character, user_input)
-            st.session_state.messages.append({"role": "assistant", "content": response})
+        st.session_state.messages.append({"role": "assistant", "content": response})
 
 chat_container.empty()  # 이전 메시지 지우기
 with chat_container.container():
