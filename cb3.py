@@ -295,6 +295,7 @@ elif st.session_state.stage == 2:
         # UI 업데이트 (사용자 메시지 추가)
         with chat_container.container():
             display_chat_message("user", user_input, user_avatar_url)
+            st.rerun()
 
         with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
             response = get_response(st.session_state.character, user_input)
