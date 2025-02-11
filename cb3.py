@@ -333,7 +333,7 @@ elif st.session_state.stage == 2:
         with chat_container.container():
             st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
             for msg in st.session_state.messages:
-                if (msg["role"] == "assistant"):
+                if msg["role"] != "user":
                     typing_display_chat_message(msg["role"], bot_message_container, msg["content"], 
                                      st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
                 else:
