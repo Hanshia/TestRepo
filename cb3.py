@@ -247,14 +247,12 @@ def display_chat_message(role, content, avatar_url):
         border-top-right-radius: 0;
         margin-left: auto;
         flex-direction: row-reverse;
-        gap: 10px;
     }}
     .assistant-bubble {{
         background-color: #d1a3ff;
         color: black;
         border-top-left-radius: 0;
         margin-right: auto;
-        gap: 10px;
     }}
     .user-message {{
         align-self: flex-end;
