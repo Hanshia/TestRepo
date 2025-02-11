@@ -344,10 +344,25 @@ elif st.session_state.stage == 2:
         chat_container.empty()  # 기존 내용 삭제
         with chat_container.container():
             st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
-            for msg in st.session_state.messages:
-                if msg["role"] == "user":
-                    display_chat_message(msg["role"], msg["content"], 
-                                     st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
+            filtered_messages = []
+            last_assistant_index = None
+
+            for i, msg in enumerate(st.session_state.messages):
+                if msg["role"] == "assistant":
+                    last_assistant_index = i  # 마지막 assistant 메시지의 인덱스 저장
+                filtered_messages.append(msg)
+
+            # 마지막 assistant 메시지 제거
+            if last_assistant_index is not None:
+                del filtered_messages[last_assistant_index]
+
+            # 필터링된 메시지만 출력
+            for msg in filtered_messages:
+                display_chat_message(
+                    msg["role"],
+                    msg["content"],
+                    st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url
+                )
             st.markdown('</div></div>', unsafe_allow_html=True)
 
         # 봇 응답 생성
