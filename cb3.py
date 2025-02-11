@@ -64,82 +64,6 @@ def load_character_files(character):
 
     return dialog_text, output_text, pdf_text
 
-# LangChain 프롬프트 템플릿 설정
-chat_prompt = ChatPromptTemplate.from_messages([
-    ("system", "너는 {character}로 역할을 수행해야 해. {character}의 스타일과 말투를 유지해야 해."),
-    MessagesPlaceholder(variable_name="history"),
-    ("user", "{input}")
-])
-
-# Runnable 설정
-chat_chain = (
-    chat_prompt
-    | client
-    | StrOutputParser()
-)
-
-# 메시지 히스토리를 포함하는 실행 객체 생성
-chat_with_memory = RunnableWithMessageHistory(
-    chat_chain,
-    lambda session_id: st.session_state.chat_history,
-    input_messages_key="input",
-    history_messages_key="history"
-)
-
-# 챗봇 응답 생성 함수
-def get_response(character, user_input):
-    dialog_text, output_text, pdf_text = load_character_files(character)
-    response = chat_with_memory.invoke(
-        {"character": character, "input": user_input},
-        config={"configurable": {"session_id": "current"}}
-    )
-    return response
-
-# Streamlit UI 시작
-st.title("캐릭터 챗봇")
-
-# CSS 스타일 적용
-chat_styles()
-
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-    st.session_state.character = None
-    st.session_state.character_avatar_url = assistant_avatar_url
-    st.session_state.stage = 1
-
-# 캐릭터 선택
-if st.session_state.stage == 1:
-    selected_character = None
-    st.markdown("### 캐릭터를 선택하세요:")
-    for character, info in characters.items():
-        if st.button(info[0]):
-            selected_character = character
-
-    if selected_character:
-        st.session_state.character = selected_character
-        st.session_state.character_avatar_url = characters[selected_character][1]
-
-        # 캐릭터 첫 인사 생성
-        first_message = get_response(selected_character, "안녕!")
-        st.session_state.messages.append({"role": "assistant", "content": first_message})
-
-        st.session_state.stage = 2
-        st.rerun()
-
-# 대화 진행
-elif st.session_state.stage == 2:
-    chat_container = st.container()
-    with chat_container:
-        for msg in st.session_state.messages:
-            st.markdown(f"**{msg['role'].capitalize()}**: {msg['content']}")
-
-    user_input = st.chat_input("대화를 입력하세요:")
-    if user_input:
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        response = get_response(st.session_state.character, user_input)
-        st.session_state.messages.append({"role": "assistant", "content": response})
-        st.rerun()
-
 # CSS 스타일 정의
 def chat_styles():
     st.markdown("""
@@ -254,3 +178,79 @@ def chat_styles():
     }
     </style>
     """, unsafe_allow_html=True)
+
+# LangChain 프롬프트 템플릿 설정
+chat_prompt = ChatPromptTemplate.from_messages([
+    ("system", "너는 {character}로 역할을 수행해야 해. {character}의 스타일과 말투를 유지해야 해."),
+    MessagesPlaceholder(variable_name="history"),
+    ("user", "{input}")
+])
+
+# Runnable 설정
+chat_chain = (
+    chat_prompt
+    | client
+    | StrOutputParser()
+)
+
+# 메시지 히스토리를 포함하는 실행 객체 생성
+chat_with_memory = RunnableWithMessageHistory(
+    chat_chain,
+    lambda session_id: st.session_state.chat_history,
+    input_messages_key="input",
+    history_messages_key="history"
+)
+
+# 챗봇 응답 생성 함수
+def get_response(character, user_input):
+    dialog_text, output_text, pdf_text = load_character_files(character)
+    response = chat_with_memory.invoke(
+        {"character": character, "input": user_input},
+        config={"configurable": {"session_id": "current"}}
+    )
+    return response
+
+# Streamlit UI 시작
+st.title("캐릭터 챗봇")
+
+# CSS 스타일 적용
+chat_styles()
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+    st.session_state.character = None
+    st.session_state.character_avatar_url = assistant_avatar_url
+    st.session_state.stage = 1
+
+# 캐릭터 선택
+if st.session_state.stage == 1:
+    selected_character = None
+    st.markdown("### 캐릭터를 선택하세요:")
+    for character, info in characters.items():
+        if st.button(info[0]):
+            selected_character = character
+
+    if selected_character:
+        st.session_state.character = selected_character
+        st.session_state.character_avatar_url = characters[selected_character][1]
+
+        # 캐릭터 첫 인사 생성
+        first_message = get_response(selected_character, "안녕!")
+        st.session_state.messages.append({"role": "assistant", "content": first_message})
+
+        st.session_state.stage = 2
+        st.rerun()
+
+# 대화 진행
+elif st.session_state.stage == 2:
+    chat_container = st.container()
+    with chat_container:
+        for msg in st.session_state.messages:
+            st.markdown(f"**{msg['role'].capitalize()}**: {msg['content']}")
+
+    user_input = st.chat_input("대화를 입력하세요:")
+    if user_input:
+        st.session_state.messages.append({"role": "user", "content": user_input})
+        response = get_response(st.session_state.character, user_input)
+        st.session_state.messages.append({"role": "assistant", "content": response})
+        st.rerun()
