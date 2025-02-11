@@ -1,10 +1,9 @@
 import streamlit as st
 from langchain_google_genai import ChatGoogleGenerativeAI
 import os
-import fitz  # PyMuPDF 라이브러리 (PDF 읽기용)
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+import fitz  # PDF 읽기용 (PyMuPDF)
 from langchain_community.chat_message_histories import ChatMessageHistory
-from langchain_core.chat_history import BaseChatMessageHistory
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.output_parsers import StrOutputParser
 
@@ -19,57 +18,21 @@ os.environ["GOOGLE_API_KEY"] = st.secrets["MY_GOOGLE_API_KEY"]
 # Google Generative AI 설정
 client = ChatGoogleGenerativeAI(model="gemini-1.5-flash", api_key=os.environ.get("GOOGLE_API_KEY"))
 
-# 애니 캐릭터와 그들의 정보 및 이미지 URL
+# 캐릭터 정보
 characters = {
     "keroro": ["케로로", "https://i.namu.wiki/i/c1GTTKMxSQJhdu1ro8bu9KxQqe6csuMTxAA_V-TkxKS2D6CPzXFHXG8pG9PnAYeLFPOT-1vFSVDWmcEuT2fYTw.webp"],
     "friren": ["프리렌", "https://i.namu.wiki/i/cgrB_jrULuNEpf8XoA4VxMLhz9gS1Q7-OnOsP6ITfl-ANLBb4Pby48kgYPzen5e1kPkx3EzeFsIbBFUtXc_KI8bkzppjryI4FXJbZOBvDcEW_sgzgTAo0uyfwK-Gu6sVC27RWQqAP0h_oMsCe3YjGg.webp"]
 }
 
-# 사용자 아바타 이미지 URL
+# 사용자 및 봇 아바타
 user_avatar_url = "https://via.placeholder.com/50?text=User"
 assistant_avatar_url = "https://via.placeholder.com/50?text=Bot"
 
-# 대화 이력 저장소 초기화
+# 대화 기록 관리
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = ChatMessageHistory()
 
-# 대화 메시지 저장 함수
-def save_message(role, content):
-    st.session_state.chat_history.add_message({"role": role, "content": content})
-
-# 특정 캐릭터의 대화 스타일을 로드하는 함수
-def load_character_files(character):
-    dialog_file = f"content/text/{character}/dialog.txt"
-    output_file = f"content/text/{character}/output.txt"
-    pdf_file = f"content/text/{character}/pd.pdf"  # 캐릭터 설정 문서 PDF
-
-    dialog_text = ""
-    output_text = ""
-    pdf_text = ""
-
-    # dialog.txt 읽기
-    if os.path.exists(dialog_file):
-        with open(dialog_file, "r", encoding="utf-8") as file:
-            dialog_text = file.read()
-    else:
-        dialog_text = f"[{dialog_file} 파일을 찾을 수 없습니다.]"
-
-    # output.txt 읽기
-    if os.path.exists(output_file):
-        with open(output_file, "r", encoding="utf-8") as file:
-            output_text = file.read()
-    else:
-        output_text = f"[{output_file} 파일을 찾을 수 없습니다.]"
-
-    # PDF 파일 읽기
-    if os.path.exists(pdf_file):
-        pdf_text = extract_text_from_pdf(pdf_file)
-    else:
-        pdf_text = f"[{pdf_file} 파일을 찾을 수 없습니다.]"
-
-    return dialog_text, output_text, pdf_text
-
-# PDF에서 텍스트를 추출하는 함수
+# PDF에서 텍스트 추출
 def extract_text_from_pdf(pdf_path):
     text = ""
     try:
@@ -79,6 +42,103 @@ def extract_text_from_pdf(pdf_path):
     except Exception as e:
         text = f"[PDF 읽기 오류: {str(e)}]"
     return text.strip()
+
+# 캐릭터 설정 로드
+def load_character_files(character):
+    dialog_file = f"content/text/{character}/dialog.txt"
+    output_file = f"content/text/{character}/output.txt"
+    pdf_file = f"content/text/{character}/pd.pdf"
+
+    dialog_text = output_text = pdf_text = ""
+
+    if os.path.exists(dialog_file):
+        with open(dialog_file, "r", encoding="utf-8") as file:
+            dialog_text = file.read()
+
+    if os.path.exists(output_file):
+        with open(output_file, "r", encoding="utf-8") as file:
+            output_text = file.read()
+
+    if os.path.exists(pdf_file):
+        pdf_text = extract_text_from_pdf(pdf_file)
+
+    return dialog_text, output_text, pdf_text
+
+# LangChain 프롬프트 템플릿 설정
+chat_prompt = ChatPromptTemplate.from_messages([
+    ("system", "너는 {character}로 역할을 수행해야 해. {character}의 스타일과 말투를 유지해야 해."),
+    MessagesPlaceholder(variable_name="history"),
+    ("user", "{input}")
+])
+
+# Runnable 설정
+chat_chain = (
+    chat_prompt
+    | client
+    | StrOutputParser()
+)
+
+# 메시지 히스토리를 포함하는 실행 객체 생성
+chat_with_memory = RunnableWithMessageHistory(
+    chat_chain,
+    lambda session_id: st.session_state.chat_history,
+    input_messages_key="input",
+    history_messages_key="history"
+)
+
+# 챗봇 응답 생성 함수
+def get_response(character, user_input):
+    dialog_text, output_text, pdf_text = load_character_files(character)
+    response = chat_with_memory.invoke(
+        {"character": character, "input": user_input},
+        config={"configurable": {"session_id": "current"}}
+    )
+    return response
+
+# Streamlit UI 시작
+st.title("캐릭터 챗봇")
+
+# CSS 스타일 적용
+chat_styles()
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+    st.session_state.character = None
+    st.session_state.character_avatar_url = assistant_avatar_url
+    st.session_state.stage = 1
+
+# 캐릭터 선택
+if st.session_state.stage == 1:
+    selected_character = None
+    st.markdown("### 캐릭터를 선택하세요:")
+    for character, info in characters.items():
+        if st.button(info[0]):
+            selected_character = character
+
+    if selected_character:
+        st.session_state.character = selected_character
+        st.session_state.character_avatar_url = characters[selected_character][1]
+
+        # 캐릭터 첫 인사 생성
+        first_message = get_response(selected_character, "안녕!")
+        st.session_state.messages.append({"role": "assistant", "content": first_message})
+
+        st.session_state.stage = 2
+        st.rerun()
+
+# 대화 진행
+elif st.session_state.stage == 2:
+    chat_container = st.container()
+    with chat_container:
+        for msg in st.session_state.messages:
+            st.markdown(f"**{msg['role'].capitalize()}**: {msg['content']}")
+
+    user_input = st.chat_input("대화를 입력하세요:")
+    if user_input:
+        st.session_state.messages.append({"role": "user", "content": user_input})
+        response = get_response(st.session_state.character, user_input)
+        st.session_state.messages.append({"role": "assistant", "content": response})
+        st.rerun()
 
 # CSS 스타일 정의
 def chat_styles():
@@ -194,160 +254,3 @@ def chat_styles():
     }
     </style>
     """, unsafe_allow_html=True)
-
-# 말풍선 스타일의 메시지 표시 함수
-def display_chat_message(role, content, avatar_url):
-    bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
-    message_class = "user-message" if role == "user" else "assistant-message"
-    st.markdown(f"""
-    <div class="chat-bubble {bubble_class} {message_class}">
-        <img src="{avatar_url}" class="chat-avatar">
-        <div>{content}</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-select_number = 0
-
-dialog_text, output_text, pdf_text = load_character_files(characters[select_number][0])
-# 프롬프트 정의
-prompt = ChatPromptTemplate.from_messages(
-    [
-        (
-            "system",
-            f"""
-            1. pdf_text에서 추출한 캐릭터의 상세한 성격과 전형적인 행동을 바탕으로, output_text에서 분석한 대화 패턴을 활용하여 캐릭터의 말투와 행동을 재현한 응답을 생성하세요.
-            또한, dialog_text 파일에 있는 캐릭터와 다른 인물 간의 대화를 참고하여 보다 자연스러운 표현을 반영하세요. 만약 pdf_text와 output_text과 dialog_text가 비어있다면 2번 항목을 참고하세요.
-
-            2. 다음은 애니 캐릭터에 대한 정보 링크입니다. pdf_text와 output_text와 dialog_text가 비어있지 않다면 이 항목은 넘기세요.
-            [keroro]: [https://namu.wiki/w/%EC%BC%80%EB%A1%9C%EB%A1%9C].
-            [friren]: [https://namu.wiki/w/%ED%94%84%EB%A6%AC%EB%A0%8C].
-            이 정보를 바탕으로, 질문에 답하거나 이 캐릭터로 역할을 연기하세요.
-
-            3. 사용자가 주제를 추천하길 원한다면, 최근 구글에서 [특정 주제 분야, 예: 기술, 여행, 음식 등]와 관련된 인기 있는 주제를 검색하여 추천해 주세요.
-
-            4. 사용자가 글의 개선하고 싶어하면 내용을 검토한 후, 명확성, 톤, 전반적인 품질을 향상시킬 수 있는 수정 사항을 제안해 주세요.
-
-            5. 반드시 응답만 작성하세요.
-
-            6. 반드시 한국어로 작성하세요. 만약 한자와 일본어가 응답에 포함되어 있다면, 한국어로 번역하세요.
-            만약 "일본어(한국어)" 이런 식으로 되어 있다면 일본어 부분을 제거하고 한국어만 남기세요.
-            예시: ほどほど(적당히) -> 적당히
-
-            7. 사용자 입력만으로는 어떤 응답을 생성해야 할지 알 수 없다면, 캐릭터의 스타일에 따른 아무 응답이나 하세요.
-            """,
-        ),
-        # 대화기록용 key 인 chat_history 는 가급적 변경 없이 사용하세요!
-        MessagesPlaceholder(variable_name="chat_history"),
-        ("human", "#Question:\n{question}"),  # 사용자 입력을 변수로 사용
-    ]
-)
-
-chain = prompt | client | StrOutputParser()
-
-# 세션 기록을 저장할 딕셔너리
-store = {}
-
-
-# 세션 ID를 기반으로 세션 기록을 가져오는 함수
-def get_session_history(session_ids):
-    print(f"[대화 세션ID]: {session_ids}")
-    if session_ids not in store:  # 세션 ID가 store에 없는 경우
-        # 새로운 ChatMessageHistory 객체를 생성하여 store에 저장
-        store[session_ids] = ChatMessageHistory()
-    return store[session_ids]  # 해당 세션 ID에 대한 세션 기록 반환
-
-chain_with_history = RunnableWithMessageHistory(
-    chain,
-    get_session_history,  # 세션 기록을 가져오는 함수
-    input_messages_key="question",  # 사용자의 질문이 템플릿 변수에 들어갈 key
-    history_messages_key="chat_history",  # 기록 메시지의 키
-)
-
-# 대화를 생성하는 함수
-def generate_conversation(language, character, user_input):
-    response = chain_with_history.invoke(
-    # 질문 입력
-    {"question": f"""{user_input}"""},
-    # 세션 ID 기준으로 대화를 기록합니다.
-    config={"configurable": {"session_id": "abc123"}},
-    )
-    return response
-
-# Streamlit 애플리케이션 시작
-st.title("캐릭터 챗봇")
-
-# CSS 스타일 적용
-chat_styles()
-
-# 세션 상태 초기화
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-    st.session_state.character = None
-    st.session_state.language = "한국어"
-    st.session_state.character_avatar_url = assistant_avatar_url
-    st.session_state.stage = 1
-
-# 대화 히스토리 표시
-chat_container = st.empty()
-with chat_container.container():
-    st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
-    for msg in st.session_state.messages:
-        display_chat_message(msg["role"], msg["content"], st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
-    st.markdown('</div></div>', unsafe_allow_html=True)
-
-# 캐릭터 선택 단계
-if st.session_state.stage == 1:
-    selected_character = None
-    st.markdown('<div class="member-selection">', unsafe_allow_html=True)
-    st.markdown("<h3>캐릭터를 선택하세요:</h3>", unsafe_allow_html=True)
-    for character, info in characters.items():
-        character_key = f"button_{character}"
-        if st.button(f"{info[0]} 선택", key=f"{character_key}_button"):
-            selected_character = character
-            break
-        st.markdown(f"""
-        <div class="member-card" id="{character_key}">
-            <img src="{info[1]}" class="chat-avatar">
-            <span>{info[0]}</span>
-        </div>
-        """, unsafe_allow_html=True)
-
-    if selected_character:
-        select_number = selected_character
-        st.session_state.character = selected_character
-        st.session_state.character_avatar_url = characters[selected_character][1]
-        dialog_text, output_text, pdf_text = load_character_files(selected_character)
-        # 첫 인사를 캐릭터 스타일에 맞게 생성
-        first_message = generate_conversation(
-            st.session_state.language, 
-            selected_character, 
-            f"""
-            처음 상대방을 만났을 때의 짧은 인삿말을 하세요.
-            """
-        )
-        st.session_state.messages.append({"role": "assistant", "content": first_message})
-        st.session_state.stage = 2
-        save_message("assistant", first_message)
-        st.rerun()
-
-# 대화 처리 단계
-elif st.session_state.stage == 2:
-    user_input = st.chat_input("대화를 입력하세요:", key="input_conversation")
-    if user_input:
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        save_message("user", user_input)
-        st.rerun()
-    if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
-        with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
-            response = generate_conversation(st.session_state.language, st.session_state.character, user_input)
-            save_message("assistant", response)
-        st.session_state.messages.append({"role": "assistant", "content": response})
-
-
-# 대화 히스토리 다시 표시
-chat_container.empty()  # 이전 메시지 지우기
-with chat_container.container():
-    st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
-    for msg in st.session_state.messages:
-        display_chat_message(msg["role"], msg["content"], st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
-    st.markdown('</div></div>', unsafe_allow_html=True)
