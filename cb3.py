@@ -294,7 +294,6 @@ elif st.session_state.stage == 2:
     user_input = st.chat_input("대화를 입력하세요:")
     if user_input:
         st.session_state.messages.append({"role": "user", "content": user_input})
-        chat_container.empty()  # 이전 메시지 지우기
         with chat_container.container():
             st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
             display_chat_message("user", user_input, user_avatar_url)
