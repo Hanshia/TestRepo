@@ -204,7 +204,7 @@ def display_chat_message2(role, text, avatar_url):
             <div>{output}</div>
         </div>
         """, unsafe_allow_html=True)
-        time.sleep(0.05)  # 속도 조절
+        time.sleep(0.02)  # 속도 조절
         container.empty()  # 기존 UI를 지우고 다시 출력
 
     # 최종적으로 완성된 텍스트를 다시 출력 (깜빡임 방지)
