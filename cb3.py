@@ -255,15 +255,12 @@ if "messages" not in st.session_state:
 # 채팅 UI 초기화
 chat_container = st.empty()
 
-# 기존 채팅 기록 표시
+# 대화 히스토리 표시
+chat_container = st.empty()
 with chat_container.container():
     st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
     for msg in st.session_state.messages:
-        display_chat_message(
-            msg["role"], 
-            msg["content"], 
-            st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url
-        )
+        display_chat_message(msg["role"], msg["content"], st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
     st.markdown('</div></div>', unsafe_allow_html=True)
 
 # 캐릭터 선택
