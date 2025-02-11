@@ -181,7 +181,17 @@ def chat_styles():
     """, unsafe_allow_html=True)
 
 # 말풍선 스타일의 메시지 표시 함수
-def display_chat_message(container, role, content, avatar_url):
+def display_chat_message(role, content, avatar_url):
+    bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
+    message_class = "user-message" if role == "user" else "assistant-message"
+    st.markdown(f"""
+    <div class="chat-bubble {bubble_class} {message_class}">
+        <img src="{avatar_url}" class="chat-avatar">
+        <div>{content}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+def typing_display_chat_message(role, container, content, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
     st.markdown(f"""
@@ -261,7 +271,7 @@ chat_container = st.empty()
 with chat_container.container():
     st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
     for msg in st.session_state.messages:
-        display_chat_message(chat_container, msg["role"], msg["content"], st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
+        display_chat_message(msg["role"], msg["content"], st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
     st.markdown('</div></div>', unsafe_allow_html=True)
 
 # 캐릭터 선택
@@ -295,6 +305,7 @@ if st.session_state.stage == 1:
 # 대화 진행
 elif st.session_state.stage == 2:
     user_input = st.chat_input("대화를 입력하세요:")
+
     if user_input:
         # 유저 입력을 즉시 메시지 목록에 추가하여 표시
         st.session_state.messages.append({"role": "user", "content": user_input})
@@ -304,7 +315,7 @@ elif st.session_state.stage == 2:
         with chat_container.container():
             st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
             for msg in st.session_state.messages:
-                display_chat_message(chat_container, msg["role"], msg["content"], 
+                display_chat_message(msg["role"], msg["content"], 
                                      st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
             st.markdown('</div></div>', unsafe_allow_html=True)
 
@@ -315,12 +326,18 @@ elif st.session_state.stage == 2:
         # 봇의 응답을 추가
         st.session_state.messages.append({"role": "assistant", "content": response})
 
+        bot_message_container = st.empty()
+
         # 다시 채팅 UI 업데이트 (봇의 메시지를 추가)
         chat_container.empty()
         with chat_container.container():
             st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
             for msg in st.session_state.messages:
-                display_chat_message(chat_container, msg["role"], msg["content"], 
+                if (msg["role"] == "assistant"):
+                    typing_display_chat_message(msg["role"], bot_message_container, msg["content"], 
+                                     st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
+                else:
+                    display_chat_message(msg["role"], msg["content"], 
                                      st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
             st.markdown('</div></div>', unsafe_allow_html=True)
 
