@@ -340,7 +340,7 @@ elif st.session_state.stage == 2:
                 display_chat_message(msg["role"], msg["content"], 
                                      st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
             st.markdown('</div></div>', unsafe_allow_html=True)
-
+        chat_container.empty()  # 기존 내용 삭제
         # 봇 응답 생성
         with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
             response = get_response(st.session_state.character, user_input)
