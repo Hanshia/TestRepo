@@ -326,11 +326,13 @@ elif st.session_state.stage == 2:
                                      st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
             st.markdown('</div></div>', unsafe_allow_html=True)
 
-        # 봇 응답 생성
+        # 봇 응답 생성 (스피너 표시)
         with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
             response = get_response(st.session_state.character, user_input)
-        
-        # 봇의 응답을 추가
-        st.session_state.messages.append({"role": "assistant", "content": response})
+
+        # 봇 응답을 바로 messages에 추가하지 않고, display_typing_effect()에서 순차 출력
         display_typing_effect(response, st.session_state.character_avatar_url)
+
+        # 최종적으로 messages에 봇의 응답 추가 (이후 새로고침에도 유지)
+        st.session_state.messages.append({"role": "assistant", "content": response})
 
