@@ -334,12 +334,3 @@ elif st.session_state.stage == 2:
         st.session_state.messages.append({"role": "assistant", "content": response})
         display_typing_effect(response, st.session_state.character_avatar_url)
 
-        # 다시 채팅 UI 업데이트 (봇의 메시지를 추가)
-        chat_container.empty()
-        with chat_container.container():
-            st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
-            for msg in st.session_state.messages:
-                display_chat_message(msg["role"], msg["content"], 
-                                     st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
-            st.markdown('</div></div>', unsafe_allow_html=True)
-
