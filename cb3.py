@@ -180,7 +180,7 @@ def chat_styles():
     </style>
     """, unsafe_allow_html=True)
 
-# 한 글자씩 출력하는 함수 (최종 메시지를 세션에 저장하지 않음)
+# 한 글자씩 출력하는 함수
 def typewriter_effect(container, text, avatar_url):
     output = ""
     for char in text:
@@ -191,10 +191,10 @@ def typewriter_effect(container, text, avatar_url):
             <div>{output}</div>
         </div>
         """, unsafe_allow_html=True)
-        time.sleep(0.05)
+        time.sleep(0.05)  # 속도 조절
         container.empty()  # 기존 UI를 지우고 다시 출력
 
-    # 최종 출력 (한 번만 표시, 중복 방지)
+    # 최종적으로 완성된 텍스트를 다시 출력 (깜빡임 방지)
     container.markdown(f"""
     <div class="chat-bubble assistant-bubble assistant-message">
         <img src="{avatar_url}" class="chat-avatar">
@@ -312,26 +312,31 @@ if st.session_state.stage == 1:
         st.session_state.stage = 2
         st.rerun()
 
+# 대화 진행
 elif st.session_state.stage == 2:
     user_input = st.chat_input("대화를 입력하세요:")
 
     if user_input:
-        # 유저 메시지 즉시 추가 및 UI 업데이트
+        # 유저 입력을 즉시 메시지 목록에 추가하여 표시
         st.session_state.messages.append({"role": "user", "content": user_input})
-        chat_container.empty()
+
+        # 채팅 UI 업데이트 (즉시 유저 메시지 보이게 하기)
+        chat_container.empty()  # 기존 내용 삭제
         with chat_container.container():
+            st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
             for msg in st.session_state.messages:
                 display_chat_message(msg["role"], msg["content"], 
                                      st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
+            st.markdown('</div></div>', unsafe_allow_html=True)
 
         # 봇 응답 생성
         with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
             response = get_response(st.session_state.character, user_input)
-
-        # 한 글자씩 출력 (세션에 저장하지 않음)
-        bot_message_container = st.empty()
-        typewriter_effect(bot_message_container, response, st.session_state.character_avatar_url)
-
-        # 최종적으로 세션에 AI 메시지 추가 (전체 UI 다시 렌더링 없음)
+        
+        # 봇의 응답을 추가
         st.session_state.messages.append({"role": "assistant", "content": response})
+
+bot_message_container = st.empty()
+        # 한 글자씩 출력
+        typewriter_effect(bot_message_container, response, st.session_state.character_avatar_url)
 
