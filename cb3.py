@@ -291,7 +291,6 @@ if st.session_state.stage == 1:
 
 # 대화 진행
 elif st.session_state.stage == 2:
-    chat_container = st.empty()
     user_input = st.chat_input("대화를 입력하세요:")
     if user_input:
         st.session_state.messages.append({"role": "user", "content": user_input})
