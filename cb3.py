@@ -279,7 +279,7 @@ if st.session_state.stage == 1:
         st.session_state.character_avatar_url = characters[selected_character][1]
 
         # 캐릭터 첫 인사 생성
-        first_message = get_response(selected_character, "안녕!")
+        first_message = get_response(selected_character, "캐릭터의 말투와 행동을 재현한 짧은 인삿말을 생성하세요.")
         st.session_state.messages.append({"role": "assistant", "content": first_message})
 
         st.session_state.stage = 2
