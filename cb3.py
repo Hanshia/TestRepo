@@ -194,20 +194,21 @@ def display_chat_message2(role, content, avatar_url):
 def display_chat_message(role, text, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
+    container = st.empty()
     output = ""
     for char in text:
         output += char
-        st.markdown(f"""
+        container.markdown(f"""
         <div class="chat-bubble {bubble_class} {message_class}">
             <img src="{avatar_url}" class="chat-avatar">
             <div>{output}</div>
         </div>
         """, unsafe_allow_html=True)
         time.sleep(0.05)  # 속도 조절
-        st.empty()  # 기존 UI를 지우고 다시 출력
+        container.empty()  # 기존 UI를 지우고 다시 출력
 
     # 최종적으로 완성된 텍스트를 다시 출력 (깜빡임 방지)
-    st.markdown(f"""
+    container.markdown(f"""
     <div class="chat-bubble {bubble_class} {message_class}">
         <img src="{avatar_url}" class="chat-avatar">
         <div>{output}</div>
