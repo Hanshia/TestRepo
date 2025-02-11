@@ -181,7 +181,7 @@ def chat_styles():
     """, unsafe_allow_html=True)
 
 # 말풍선 스타일의 메시지 표시 함수
-def display_chat_message2(role, content, avatar_url):
+def display_chat_message(role, content, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
     st.markdown(f"""
@@ -191,7 +191,7 @@ def display_chat_message2(role, content, avatar_url):
     </div>
     """, unsafe_allow_html=True)
 
-def display_chat_message(role, text, avatar_url):
+def display_chat_message2(role, text, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
     container = st.empty()
@@ -343,7 +343,7 @@ elif st.session_state.stage == 2:
         with chat_container.container():
             st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
             for msg in st.session_state.messages:
-                display_chat_message(msg["role"], msg["content"], 
+                display_chat_message2(msg["role"], msg["content"], 
                                      st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
             st.markdown('</div></div>', unsafe_allow_html=True)
 
