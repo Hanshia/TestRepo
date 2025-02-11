@@ -322,7 +322,7 @@ elif st.session_state.stage == 2:
         with chat_container.container():
             st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
             for idx, msg in enumerate(st.session_state.messages):
-                if idx == len(st.session_state.messages) - 2:  # 마지막에서 -1인 경우(즉, 뒤에서 두 번째 메시지) 건너뜀
+                if idx == len(st.session_state.messages) - 1:  # 마지막에서 -1인 경우(즉, 뒤에서 두 번째 메시지) 건너뜀
                     continue
                 display_chat_message(
                     msg["role"], msg["content"], 
