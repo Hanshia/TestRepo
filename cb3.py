@@ -6,7 +6,6 @@ from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.output_parsers import StrOutputParser
-import time
 
 st.session_state.language = '한국어'
 
@@ -247,14 +246,6 @@ st.title("캐릭터 챗봇")
 # CSS 스타일 적용
 chat_styles()
 
-# 텍스트를 한 글자씩 출력하는 함수
-def typewriter_effect(text):
-    display_text = ""
-    for char in text:
-        display_text += char
-        st.markdown(display_text, unsafe_allow_html=True)
-        time.sleep(0.05)  # 글자 출력 간격 조정
-
 if "messages" not in st.session_state:
     st.session_state.messages = []
     st.session_state.character = None
@@ -307,7 +298,7 @@ elif st.session_state.stage == 2:
         st.session_state.messages.append({"role": "user", "content": user_input})
 
         # 채팅 UI 업데이트 (즉시 유저 메시지 보이게 하기)
-        chat_container.empty()
+        chat_container.empty()  # 기존 내용 삭제
         with chat_container.container():
             st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
             for msg in st.session_state.messages:
@@ -317,22 +308,17 @@ elif st.session_state.stage == 2:
 
         # 봇 응답 생성
         with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
-            response = get_response(st.session_state.character, user_input)
+            response = st.write_stream(get_response(st.session_state.character, user_input))
         
         # 봇의 응답을 추가
         st.session_state.messages.append({"role": "assistant", "content": response})
 
-        # 다시 채팅 UI 업데이트 (봇의 메시지를 추가하면서 한 글자씩 출력)
+        # 다시 채팅 UI 업데이트 (봇의 메시지를 추가)
         chat_container.empty()
         with chat_container.container():
             st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
             for msg in st.session_state.messages:
-                if msg["role"] == "assistant":
-                    st.markdown(f'<div class="assistant-message">', unsafe_allow_html=True)
-                    typewriter_effect(msg["content"])  # 한 글자씩 출력
-                    st.markdown('</div>', unsafe_allow_html=True)
-                else:
-                    display_chat_message(msg["role"], msg["content"], 
-                                         st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
+                display_chat_message(msg["role"], msg["content"], 
+                                     st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
             st.markdown('</div></div>', unsafe_allow_html=True)
 
