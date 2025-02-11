@@ -225,14 +225,6 @@ chat_with_memory = RunnableWithMessageHistory(
     history_messages_key="history"
 )
 
-# 대화 히스토리 표시
-chat_container = st.empty()
-with chat_container.container():
-    st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
-    for msg in st.session_state.messages:
-        display_chat_message(msg["role"], msg["content"], st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
-    st.markdown('</div></div>', unsafe_allow_html=True)
-
 # 챗봇 응답 생성 함수
 def get_response(character, user_input):
     dialog_text, output_text, pdf_text = load_character_files(character)
@@ -289,14 +281,15 @@ elif st.session_state.stage == 2:
     user_input = st.chat_input("대화를 입력하세요:")
     if user_input:
         st.session_state.messages.append({"role": "user", "content": user_input})
-        response = get_response(st.session_state.character, user_input)
-        st.session_state.messages.append({"role": "assistant", "content": response})
-        st.rerun()
+        
+        # 채팅 UI에 사용자 메시지 표시
+        display_chat_message("user", user_input, user_avatar_url)
 
-# 대화 히스토리 다시 표시
-chat_container.empty()  # 이전 메시지 지우기
-with chat_container.container():
-    st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
-    for msg in st.session_state.messages:
-        display_chat_message(msg["role"], msg["content"], st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
-    st.markdown('</div></div>', unsafe_allow_html=True)
+        with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
+            response = get_response(st.session_state.character, user_input)
+            st.session_state.messages.append({"role": "assistant", "content": response})
+
+            # 챗봇 응답을 UI에 표시
+            display_chat_message("assistant", response, st.session_state.character_avatar_url)
+
+        st.rerun()
