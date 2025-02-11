@@ -191,17 +191,32 @@ def display_chat_message(role, content, avatar_url):
     </div>
     """, unsafe_allow_html=True)
 
+# 타이핑 효과를 위한 메시지 표시 함수
 def typing_display_chat_message(role, container, content, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
-    st.markdown(f"""
+
+    # 타이핑 효과를 위한 빈 문자열 초기화
+    typed_content = ""
+
+    # Streamlit 컨테이너 내에서 메시지 업데이트
+    for i in range(len(content)):
+        typed_content = content[:i+1]  # 한 글자씩 추가
+        container.markdown(f"""
+        <div class="chat-bubble {bubble_class} {message_class}">
+            <img src="{avatar_url}" class="chat-avatar">
+            <div>{typed_content}</div>
+        </div>
+        """, unsafe_allow_html=True)
+        time.sleep(0.05)  # 타이핑 속도 조절
+
+    # 타이핑 완료 후, 최종 메시지로 덮어쓰기
+    container.markdown(f"""
     <div class="chat-bubble {bubble_class} {message_class}">
         <img src="{avatar_url}" class="chat-avatar">
         <div>{content}</div>
     </div>
     """, unsafe_allow_html=True)
-    time.sleep(0.05)  # 속도 조절
-    container.empty()  # 기존 UI를 지우고 다시 출력
 
 # LangChain 프롬프트 템플릿 설정
 chat_prompt = ChatPromptTemplate.from_messages([
