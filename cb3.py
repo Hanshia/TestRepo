@@ -247,7 +247,7 @@ def display_chat_message(role, content, avatar_url):
     }}
     </style>
     """
-    components.html(js_code, height=100)
+    components.html(js_code, height=70)
 
 # LangChain 프롬프트 템플릿 설정
 chat_prompt = ChatPromptTemplate.from_messages([
