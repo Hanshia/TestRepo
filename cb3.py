@@ -293,7 +293,7 @@ if st.session_state.stage == 1:
 elif st.session_state.stage == 2:
     user_input = st.chat_input("대화를 입력하세요:", key="input_conversation")
     if user_input:
-    st.session_state.messages.append({"role": "user", "content": user_input})
+        st.session_state.messages.append({"role": "user", "content": user_input})
 
     # UI 업데이트 (사용자 메시지 추가)
     with chat_container.container():
