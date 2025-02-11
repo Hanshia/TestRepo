@@ -294,6 +294,7 @@ elif st.session_state.stage == 2:
         # UI 업데이트 (사용자 메시지 추가)
         with chat_container.container():
             display_chat_message("user", user_input, user_avatar_url)
+            st.markdown('</div></div>', unsafe_allow_html=True)
 
         with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
             response = get_response(st.session_state.character, user_input)
@@ -302,5 +303,6 @@ elif st.session_state.stage == 2:
             # UI 업데이트 (챗봇 응답 추가)
             with chat_container.container():
                 display_chat_message("assistant", response, st.session_state.character_avatar_url)
+                st.markdown('</div></div>', unsafe_allow_html=True)
 
         st.rerun()
