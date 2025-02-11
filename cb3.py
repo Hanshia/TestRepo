@@ -260,21 +260,15 @@ chain_with_history = RunnableWithMessageHistory(
     history_messages_key="chat_history",  # 기록 메시지의 키
 )
 
-chain_with_history.invoke(
-    # 질문 입력
-    {"question": "내 이름이 뭐라고?"},
-    # 세션 ID 기준으로 대화를 기록합니다.
-    config={"configurable": {"session_id": "abc123"}},
-)
-
 # 대화를 생성하는 함수
 def generate_conversation(language, character, user_input):
-    chain_with_history.invoke(
+    response = chain_with_history.invoke(
     # 질문 입력
     {"question": f"""{user_input}"""},
     # 세션 ID 기준으로 대화를 기록합니다.
     config={"configurable": {"session_id": "abc123"}},
     )
+    return response.content
 
 # Streamlit 애플리케이션 시작
 st.title("캐릭터 챗봇")
