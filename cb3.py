@@ -295,7 +295,12 @@ elif st.session_state.stage == 2:
     if user_input:
         st.session_state.messages.append({"role": "user", "content": user_input})
         with chat_container:
-            display_chat_message("user", user_input, user_avatar_url)
+            for msg in st.session_state.messages:
+                display_chat_message(
+                    msg["role"], 
+                    msg["content"], 
+                    st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url
+                )
     if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
         with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
             response = get_response(st.session_state.character, user_input)
