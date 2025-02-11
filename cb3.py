@@ -209,21 +209,6 @@ def display_chat_message(role, content, avatar_url):
     }})();
     </script>
     <style>
-    body, .stApp {{
-        background-color: white;
-    }}
-    .stApp {{
-        color: black;
-    }}
-    .title {{
-        color: black;
-    }}
-    .title img {{
-        width: 100%;
-        max-width: 300px;
-        display: block;
-        margin: 0 auto 20px auto;
-    }}
     .chat-bubble {{
         padding: 10px;
         margin: 5px;
@@ -259,61 +244,6 @@ def display_chat_message(role, content, avatar_url):
     }}
     .assistant-message {{
         align-self: flex-start;
-    }}
-    .spinner-container {{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: 10px 0;
-    }}
-    .member-selection {{
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }}
-    .member-card {{
-        background-color: #f1f1f1;
-        border: none;
-        padding: 10px;
-        margin: 5px;
-        border-radius: 10px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        cursor: pointer;
-        width: 200px;
-        text-align: center;
-    }}
-    .member-card img {{
-        border-radius: 50%;
-        width: 100px;
-        height: 100px;
-        object-fit: cover;
-        margin-bottom: 10px;
-    }}
-    .member-card span {{
-        margin-bottom: 10px;
-    }}
-    .member-button {{
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        padding: 10px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 14px;
-        cursor: pointer;
-        border-radius: 5px;
-        width: 100%;
-        box-sizing: border-box;
-    }}
-    .member-card button {{
-        background-color: transparent;
-        border: none;
-        padding: 0;
-        text-align: center;
-        cursor: pointer;
     }}
     </style>
     """
