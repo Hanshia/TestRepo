@@ -291,7 +291,7 @@ if st.session_state.stage == 1:
 
 # 대화 진행
 elif st.session_state.stage == 2:
-    user_input = st.chat_input("대화를 입력하세요:", key="input_conversation")
+    user_input = st.chat_input("대화를 입력하세요:")
     if user_input:
         st.session_state.messages.append({"role": "user", "content": user_input})
         st.rerun()
