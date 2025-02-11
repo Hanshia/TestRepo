@@ -320,11 +320,11 @@ elif st.session_state.stage == 2:
         st.session_state.messages.append({"role": "user", "content": user_input})
         chat_container.empty()
         with chat_container.container():
-            display_chat_message("user", user_input, )
+            display_chat_message("user", user_input, user_avatar_url)
 
         # 봇 응답 생성
         with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
-            response = get_response(st.session_state.character, user_input, user_avatar_url)
+            response = get_response(st.session_state.character, user_input)
 
         # 한 글자씩 출력 (세션에 저장하지 않음)
         bot_message_container = st.empty()
