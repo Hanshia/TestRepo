@@ -320,7 +320,9 @@ elif st.session_state.stage == 2:
         st.session_state.messages.append({"role": "user", "content": user_input})
         chat_container.empty()
         with chat_container.container():
-            display_chat_message("user", user_input, user_avatar_url)
+            for msg in st.session_state.messages:
+                display_chat_message(msg["role"], msg["content"], 
+                                     st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
 
         # 봇 응답 생성
         with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
