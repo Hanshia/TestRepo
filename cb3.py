@@ -181,22 +181,22 @@ def chat_styles():
     """, unsafe_allow_html=True)
 
 # 말풍선 스타일의 메시지 표시 함수
-def display_chat_message(role, content, avatar_url):
+def display_chat_message(role, container, content, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
     output = ""
     for char in content:
         output += char
-        st.markdown(f"""
+        container.markdown(f"""
         <div class="chat-bubble {bubble_class} {message_class}">
             <img src="{avatar_url}" class="chat-avatar">
             <div>{output}</div>
         </div>
         """, unsafe_allow_html=True)
         time.sleep(0.05)  # 속도 조절
-        st.empty()
+        container.empty()
 
-    st.markdown(f"""
+    container.markdown(f"""
     <div class="chat-bubble {bubble_class} {message_class}">
         <img src="{avatar_url}" class="chat-avatar">
         <div>{content}</div>
@@ -271,7 +271,7 @@ chat_container = st.empty()
 with chat_container.container():
     st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
     for msg in st.session_state.messages:
-        display_chat_message(msg["role"], msg["content"], st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
+        display_chat_message(msg["role"], msg["content"], chat_container, st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
     st.markdown('</div></div>', unsafe_allow_html=True)
 
 # 캐릭터 선택
@@ -315,7 +315,7 @@ elif st.session_state.stage == 2:
         with chat_container.container():
             st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
             for msg in st.session_state.messages:
-                display_chat_message(msg["role"], msg["content"], 
+                display_chat_message(msg["role"], msg["content"], chat_container,
                                      st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
             st.markdown('</div></div>', unsafe_allow_html=True)
 
@@ -331,7 +331,7 @@ elif st.session_state.stage == 2:
         with chat_container.container():
             st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
             for msg in st.session_state.messages:
-                display_chat_message(msg["role"], msg["content"], 
+                display_chat_message(msg["role"], msg["content"], chat_container,
                                      st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
             st.markdown('</div></div>', unsafe_allow_html=True)
 
