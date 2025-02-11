@@ -292,15 +292,33 @@ if st.session_state.stage == 1:
 # 대화 진행
 elif st.session_state.stage == 2:
     user_input = st.chat_input("대화를 입력하세요:")
+
     if user_input:
+        # 유저 입력을 즉시 메시지 목록에 추가하여 표시
         st.session_state.messages.append({"role": "user", "content": user_input})
+
+        # 채팅 UI 업데이트 (즉시 유저 메시지 보이게 하기)
+        chat_container.empty()  # 기존 내용 삭제
+        with chat_container.container():
+            st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
+            for msg in st.session_state.messages:
+                display_chat_message(msg["role"], msg["content"], 
+                                     st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
+            st.markdown('</div></div>', unsafe_allow_html=True)
+
+        # 봇 응답 생성
         with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
             response = get_response(st.session_state.character, user_input)
+        
+        # 봇의 응답을 추가
         st.session_state.messages.append({"role": "assistant", "content": response})
 
-chat_container.empty()  # 이전 메시지 지우기
-with chat_container.container():
-    st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
-    for msg in st.session_state.messages:
-        display_chat_message(msg["role"], msg["content"], st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
-    st.markdown('</div></div>', unsafe_allow_html=True)
+        # 다시 채팅 UI 업데이트 (봇의 메시지를 추가)
+        chat_container.empty()
+        with chat_container.container():
+            st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
+            for msg in st.session_state.messages:
+                display_chat_message(msg["role"], msg["content"], 
+                                     st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
+            st.markdown('</div></div>', unsafe_allow_html=True)
+
