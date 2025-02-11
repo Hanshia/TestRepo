@@ -291,7 +291,6 @@ if st.session_state.stage == 1:
 
 # 대화 진행
 elif st.session_state.stage == 2:
-    input_container = st.empty()
     user_input = st.chat_input("대화를 입력하세요:", key="input_conversation")
     if user_input:
         st.session_state.messages.append({"role": "user", "content": user_input})
@@ -300,6 +299,7 @@ elif st.session_state.stage == 2:
         with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
             response = get_response(st.session_state.character, user_input)
             st.session_state.messages.append({"role": "assistant", "content": response})
+            st.rerun()
 
 chat_container.empty()  # 이전 메시지 지우기
 with chat_container.container():
