@@ -303,3 +303,10 @@ elif st.session_state.stage == 2:
             # UI 업데이트 (챗봇 응답 추가)
             with chat_container.container():
                 display_chat_message("assistant", response, st.session_state.character_avatar_url)
+
+chat_container.empty()  # 이전 메시지 지우기
+with chat_container.container():
+    st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
+    for msg in st.session_state.messages:
+        display_chat_message(msg["role"], msg["content"], st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
+    st.markdown('</div></div>', unsafe_allow_html=True)
