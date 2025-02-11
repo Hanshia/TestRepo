@@ -180,22 +180,24 @@ def chat_styles():
     </style>
     """, unsafe_allow_html=True)
 
-# 말풍선 스타일의 메시지 표시 함수 (타이핑 효과 포함)
+# 말풍선 스타일의 메시지 표시 함수
 def display_chat_message(role, content, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
     
-    # HTML 템플릿을 먼저 출력
-    message_container = st.empty()  # 실시간 업데이트용 컨테이너
+    # 메시지 컨테이너 생성
+    message_container = st.empty()
+
+    # HTML 말풍선 틀 먼저 출력
     chat_html = f"""
     <div class="chat-bubble {bubble_class} {message_class}">
         <img src="{avatar_url}" class="chat-avatar">
-        <div id="chat-text"></div> <!-- 여기에 글자가 한 글자씩 출력됨 -->
+        <div id="chat-text"></div> <!-- 여기에 한 글자씩 출력됨 -->
     </div>
     """
     message_container.markdown(chat_html, unsafe_allow_html=True)
 
-    # 한 글자씩 출력되는 효과 추가
+    # 한 글자씩 출력되는 효과
     typed_text = ""
     for char in content:
         typed_text += char
@@ -207,7 +209,6 @@ def display_chat_message(role, content, avatar_url):
         """
         message_container.markdown(updated_chat_html, unsafe_allow_html=True)
         time.sleep(0.05)  # 타이핑 속도 조절
-
 
 # LangChain 프롬프트 템플릿 설정
 chat_prompt = ChatPromptTemplate.from_messages([
