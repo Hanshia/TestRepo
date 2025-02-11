@@ -184,10 +184,10 @@ def chat_styles():
 def display_chat_message(role, content, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
-    js_code = f"""
+    st.markdown(f"""
     <div class="chat-bubble {bubble_class} {message_class}">
         <img src="{avatar_url}" class="chat-avatar">
-        <div class="chat-content"></div>
+        <div>{content}</div>
     </div>
     <script>
     (function() {{
@@ -208,46 +208,7 @@ def display_chat_message(role, content, avatar_url):
         typeText(chatContent, `{content}`);
     }})();
     </script>
-    <style>
-    .chat-bubble {{
-        padding: 10px;
-        margin: 5px;
-        border-radius: 10px;
-        display: inline-block; /* 텍스트 길이에 맞춰 말풍선 길이 조정 */
-        max-width: 70%;
-        word-wrap: break-word;
-        display: flex;
-        align-items: flex-start;
-    }}
-    .chat-avatar {{
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        margin-right: 10px;
-        object-fit: cover;
-    }}
-    .user-bubble {{
-        background-color: #e0e0e0;
-        color: black;
-        border-top-right-radius: 0;
-        margin-left: auto;
-        flex-direction: row-reverse;
-    }}
-    .assistant-bubble {{
-        background-color: #d1a3ff;
-        color: black;
-        border-top-left-radius: 0;
-        margin-right: auto;
-    }}
-    .user-message {{
-        align-self: flex-end;
-    }}
-    .assistant-message {{
-        align-self: flex-start;
-    }}
-    </style>
-    """
-    components.html(js_code, height=100)
+    """, unsafe_allow_html=True)
 
 # LangChain 프롬프트 템플릿 설정
 chat_prompt = ChatPromptTemplate.from_messages([
