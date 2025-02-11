@@ -179,6 +179,17 @@ def chat_styles():
     </style>
     """, unsafe_allow_html=True)
 
+# 말풍선 스타일의 메시지 표시 함수
+def display_chat_message(role, content, avatar_url):
+    bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
+    message_class = "user-message" if role == "user" else "assistant-message"
+    st.markdown(f"""
+    <div class="chat-bubble {bubble_class} {message_class}">
+        <img src="{avatar_url}" class="chat-avatar">
+        <div>{content}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
 # LangChain 프롬프트 템플릿 설정
 chat_prompt = ChatPromptTemplate.from_messages([
     ("system", """너는 {character}의 역할을 수행해야 해. {character}의 스타일과 말투를 유지해야 해.
@@ -213,6 +224,14 @@ chat_with_memory = RunnableWithMessageHistory(
     input_messages_key="input",
     history_messages_key="history"
 )
+
+# 대화 히스토리 표시
+chat_container = st.empty()
+with chat_container.container():
+    st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
+    for msg in st.session_state.messages:
+        display_chat_message(msg["role"], msg["content"], st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
+    st.markdown('</div></div>', unsafe_allow_html=True)
 
 # 챗봇 응답 생성 함수
 def get_response(character, user_input):
@@ -273,3 +292,11 @@ elif st.session_state.stage == 2:
         response = get_response(st.session_state.character, user_input)
         st.session_state.messages.append({"role": "assistant", "content": response})
         st.rerun()
+
+# 대화 히스토리 다시 표시
+chat_container.empty()  # 이전 메시지 지우기
+with chat_container.container():
+    st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
+    for msg in st.session_state.messages:
+        display_chat_message(msg["role"], msg["content"], st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
+    st.markdown('</div></div>', unsafe_allow_html=True)
