@@ -187,7 +187,7 @@ def display_chat_message(role, content, avatar_url):
     st.markdown(f"""
     <div class="chat-bubble {bubble_class} {message_class}">
         <img src="{avatar_url}" class="chat-avatar">
-        <div>{content}</div>
+        <div></div>
     </div>
     """, unsafe_allow_html=True)
 
