@@ -268,7 +268,7 @@ def generate_conversation(language, character, user_input):
     # 세션 ID 기준으로 대화를 기록합니다.
     config={"configurable": {"session_id": "abc123"}},
     )
-    return response.content
+    return response
 
 # Streamlit 애플리케이션 시작
 st.title("캐릭터 챗봇")
