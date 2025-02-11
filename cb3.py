@@ -6,7 +6,7 @@ from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.output_parsers import StrOutputParser
-from streamlit.components.v1 import html
+import streamlit.components.v1 as components
 
 st.session_state.language = '한국어'
 
@@ -184,14 +184,11 @@ def chat_styles():
 def display_chat_message(role, content, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
-    st.markdown(f"""
+    js_code = f"""
     <div class="chat-bubble {bubble_class} {message_class}">
         <img src="{avatar_url}" class="chat-avatar">
-        <div></div>
+        <div class="chat-content"></div>
     </div>
-    """, unsafe_allow_html=True)
-
-    js_code = f"""
     <script>
     (function() {{
         function typeText(element, text, speed = 50) {{
@@ -201,18 +198,68 @@ def display_chat_message(role, content, avatar_url):
                     element.innerHTML += text.charAt(index);
                     index++;
                     setTimeout(type, speed);
+                }} else {{
+                    adjustHeight(); // 텍스트 입력 후 높이 조정
                 }}
             }}
             type();
         }}
+
+        function adjustHeight() {{
+            if (chatContainer) {{
+                const height = chatContainer.scrollHeight;
+                window.parent.postMessage({{ height: height }}, "*");
+            }}
+        }}
+
+        window.addEventListener("load", adjustHeight);
+        window.addEventListener("resize", adjustHeight);
 
         const chatBubble = document.currentScript.previousElementSibling;
         const chatContent = chatBubble.querySelector(".chat-content");
         typeText(chatContent, `{content}`);
     }})();
     </script>
+    <style>
+    .chat-bubble {{
+        padding: 10px;
+        margin: 5px;
+        border-radius: 10px;
+        display: inline-block; /* 텍스트 길이에 맞춰 말풍선 길이 조정 */
+        max-width: 70%;
+        word-wrap: break-word;
+        display: flex;
+        align-items: flex-start;
+    }}
+    .chat-avatar {{
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin-right: 10px;
+        object-fit: cover;
+    }}
+    .user-bubble {{
+        background-color: #e0e0e0;
+        color: black;
+        border-top-right-radius: 0;
+        margin-left: auto;
+        flex-direction: row-reverse;
+    }}
+    .assistant-bubble {{
+        background-color: #d1a3ff;
+        color: black;
+        border-top-left-radius: 0;
+        margin-right: auto;
+    }}
+    .user-message {{
+        align-self: flex-end;
+    }}
+    .assistant-message {{
+        align-self: flex-start;
+    }}
+    </style>
     """
-    html(js_code, height=0)
+    components.html(js_code)
 
 # LangChain 프롬프트 템플릿 설정
 chat_prompt = ChatPromptTemplate.from_messages([
