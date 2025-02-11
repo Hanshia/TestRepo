@@ -6,6 +6,7 @@ from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.output_parsers import StrOutputParser
+import time
 
 st.session_state.language = '한국어'
 
@@ -180,13 +181,36 @@ def chat_styles():
     """, unsafe_allow_html=True)
 
 # 말풍선 스타일의 메시지 표시 함수
-def display_chat_message(role, content, avatar_url):
+def display_chat_message2(role, content, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
     st.markdown(f"""
     <div class="chat-bubble {bubble_class} {message_class}">
         <img src="{avatar_url}" class="chat-avatar">
         <div>{content}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+def display_chat_message(role, text, avatar_url):
+    bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
+    message_class = "user-message" if role == "user" else "assistant-message"
+    output = ""
+    for char in text:
+        output += char
+        st.markdown(f"""
+        <div class="chat-bubble {bubble_class} {message_class}">
+            <img src="{avatar_url}" class="chat-avatar">
+            <div>{output}</div>
+        </div>
+        """, unsafe_allow_html=True)
+        time.sleep(0.05)  # 속도 조절
+        st.empty()  # 기존 UI를 지우고 다시 출력
+
+    # 최종적으로 완성된 텍스트를 다시 출력 (깜빡임 방지)
+    st.markdown(f"""
+    <div class="chat-bubble {bubble_class} {message_class}">
+        <img src="{avatar_url}" class="chat-avatar">
+        <div>{output}</div>
     </div>
     """, unsafe_allow_html=True)
 
