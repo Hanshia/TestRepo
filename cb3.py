@@ -6,7 +6,7 @@ from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.output_parsers import StrOutputParser
-import time
+import streamlit.components.v1 as components
 
 st.session_state.language = '한국어'
 
@@ -184,12 +184,31 @@ def chat_styles():
 def display_chat_message(role, content, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
-    st.markdown(f"""
+    js_code = f"""
     <div class="chat-bubble {bubble_class} {message_class}">
         <img src="{avatar_url}" class="chat-avatar">
         <div>{content}</div>
     </div>
-    """, unsafe_allow_html=True)
+    <script>
+    function typeText(element, text, speed = 50) {{
+        let index = 0;
+        function type() {{
+            if (index < text.length) {{
+                element.innerHTML += text.charAt(index);
+                index++;
+                setTimeout(type, speed);
+            }}
+        }}
+        type();
+    }}
+
+    document.addEventListener("DOMContentLoaded", function () {{
+        const chatContent = document.getElementById("chat-content");
+        typeText(chatContent, "{message_text}");
+    }});
+    </script>
+    """
+    components.html(js_code)
 
 # LangChain 프롬프트 템플릿 설정
 chat_prompt = ChatPromptTemplate.from_messages([
