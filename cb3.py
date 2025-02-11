@@ -332,11 +332,11 @@ elif st.session_state.stage == 2:
         # 봇 응답 생성
         with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
             response = get_response(st.session_state.character, user_input)
-        
-        # 봇의 응답을 추가
-        st.session_state.messages.append({"role": "assistant", "content": response})
 
         bot_message_container = st.empty()
         # 한 글자씩 출력
         typewriter_effect(bot_message_container, response, st.session_state.character_avatar_url)
+
+        # 봇의 응답을 추가
+        st.session_state.messages.append({"role": "assistant", "content": response})
 
