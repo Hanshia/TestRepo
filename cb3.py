@@ -307,7 +307,6 @@ elif st.session_state.stage == 2:
             response = get_response(st.session_state.character, user_input)
             st.session_state.messages.append({"role": "assistant", "content": response})
 
-chat_container.empty()  # 이전 메시지 지우기
 with chat_container.container():
     st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
     for msg in st.session_state.messages:
