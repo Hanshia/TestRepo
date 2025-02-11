@@ -185,8 +185,19 @@ def display_chat_message(role, content, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
     
-    with st.chat_message(role):  # ✅ 채팅 말풍선 유지
-        message_placeholder = st.empty()  # ✅ 지속적으로 업데이트할 공간 생성
+    # ✅ 기존 메시지 출력
+    for msg in st.session_state.messages:
+        with st.chat_message(msg["role"]):
+            st.markdown(f"""
+            <div class="chat-bubble {msg['bubble_class']} {msg['message_class']}">
+                <img src="{msg['avatar_url']}" class="chat-avatar">
+                <div>{msg['content']}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    # ✅ 새로운 메시지만 타이핑 효과 적용
+    with st.chat_message(role):
+        message_placeholder = st.empty()  # ✅ 비어 있는 공간을 생성
         displayed_text = ""  # ✅ 누적된 텍스트 저장
         
         for char in content:
