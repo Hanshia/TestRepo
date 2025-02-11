@@ -184,20 +184,12 @@ def chat_styles():
 def display_chat_message(role, content, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
-
-    with st.chat_message(role):  # ✅ 새로운 채팅 말풍선 생성
-        message_placeholder = st.empty()  # ✅ 타이핑 효과를 적용할 공간
-        displayed_text = ""  # ✅ 출력할 텍스트 변수
-        
-        for char in content:
-            displayed_text += char  # 한 글자씩 추가
-            message_placeholder.markdown(f"""
-            <div class="chat-bubble {bubble_class} {message_class}">
-                <img src="{avatar_url}" class="chat-avatar">
-                <div>{displayed_text}</div>
-            </div>
-            """, unsafe_allow_html=True)  # ✅ 한 글자씩 업데이트
-            time.sleep(0.05)  # ✅ 50ms 간격으로 출력
+    st.markdown(f"""
+    <div class="chat-bubble {bubble_class} {message_class}">
+        <img src="{avatar_url}" class="chat-avatar">
+        <div>{content}</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 # LangChain 프롬프트 템플릿 설정
 chat_prompt = ChatPromptTemplate.from_messages([
