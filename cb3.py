@@ -184,15 +184,24 @@ def chat_styles():
 def display_chat_message(role, content, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
+    output = ""
     for char in content:
+        output += char
         st.markdown(f"""
         <div class="chat-bubble {bubble_class} {message_class}">
             <img src="{avatar_url}" class="chat-avatar">
-            <div>{content}</div>
+            <div>{output}</div>
         </div>
         """, unsafe_allow_html=True)
         time.sleep(0.05)  # 속도 조절
         st.empty()
+
+    st.markdown(f"""
+    <div class="chat-bubble {bubble_class} {message_class}">
+        <img src="{avatar_url}" class="chat-avatar">
+        <div>{content}</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 # LangChain 프롬프트 템플릿 설정
 chat_prompt = ChatPromptTemplate.from_messages([
