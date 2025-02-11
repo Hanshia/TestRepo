@@ -185,20 +185,18 @@ def display_chat_message(role, content, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
 
-    # 컨테이너 생성
-    message_container = st.empty()
+    with st.chat_message(role):  # Streamlit의 chat_message 컨텍스트 사용
+        st.markdown(f'<img src="{avatar_url}" class="chat-avatar">', unsafe_allow_html=True)
+        
+        message_container = st.empty()  # 메시지를 업데이트할 컨테이너
+        displayed_text = ""
 
-    # 한 글자씩 출력하는 효과
-    displayed_text = ""
-    for char in content:
-        displayed_text += char
-        message_container.markdown(f"""
-        <div class="chat-bubble {bubble_class} {message_class}">
-            <img src="{avatar_url}" class="chat-avatar">
-            <div>{displayed_text}</div>
-        </div>
-        """, unsafe_allow_html=True)
-        time.sleep(0.05)  # 타이핑 속도 조절 (0.05초)
+        for char in content:
+            displayed_text += char
+            message_container.markdown(f'<div class="chat-bubble {bubble_class} {message_class}">{displayed_text}</div>',
+                                       unsafe_allow_html=True)
+            time.sleep(0.05)  # 타이핑 속도 조절
+
 
 # LangChain 프롬프트 템플릿 설정
 chat_prompt = ChatPromptTemplate.from_messages([
