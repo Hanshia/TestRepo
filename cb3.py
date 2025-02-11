@@ -204,7 +204,8 @@ def display_chat_message(role, content, avatar_url):
     }}
     typeEffect();
     </script>
-    """, st.components.v1.html(html_code, height=100)
+    """
+    st.components.v1.html(html_code, height=100)
 
 
 # LangChain 프롬프트 템플릿 설정
