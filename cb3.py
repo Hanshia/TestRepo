@@ -256,10 +256,10 @@ if "messages" not in st.session_state:
 # 대화 히스토리 표시
 chat_container = st.empty()
 with chat_container.container():
-    st.write('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
+    st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
     for msg in st.session_state.messages:
         display_chat_message(msg["role"], msg["content"], st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
-    st.write('</div></div>', unsafe_allow_html=True)
+    st.markdown('</div></div>', unsafe_allow_html=True)
 
 # 캐릭터 선택
 if st.session_state.stage == 1:
@@ -295,6 +295,7 @@ elif st.session_state.stage == 2:
     if user_input:
         st.session_state.messages.append({"role": "user", "content": user_input})
         display_chat_message("user", user_input, user_avatar_url)
+        st.rerun()
     if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
         with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
             response = get_response(st.session_state.character, user_input)
@@ -303,7 +304,7 @@ elif st.session_state.stage == 2:
 
 chat_container.empty()  # 이전 메시지 지우기
 with chat_container.container():
-    st.write('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
+    st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
     for msg in st.session_state.messages:
         display_chat_message(msg["role"], msg["content"], st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
-    st.write('</div></div>', unsafe_allow_html=True)
+    st.markdown('</div></div>', unsafe_allow_html=True)
