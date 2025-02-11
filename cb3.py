@@ -181,12 +181,14 @@ def chat_styles():
     """, unsafe_allow_html=True)
 
 # 한 글자씩 출력하는 함수
-def typewriter_effect(container, text, avatar_url):
+def typewriter_effect(role, container, text, avatar_url):
     output = ""
+    bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
+    message_class = "user-message" if role == "user" else "assistant-message"
     for char in text:
         output += char
         container.markdown(f"""
-        <div class="chat-bubble assistant-bubble assistant-message">
+        <div class="chat-bubble {bubble_class} {message_class}">
             <img src="{avatar_url}" class="chat-avatar">
             <div>{output}</div>
         </div>
@@ -335,7 +337,7 @@ elif st.session_state.stage == 2:
 
         bot_message_container = st.empty()
         # 한 글자씩 출력
-        typewriter_effect(bot_message_container, response, st.session_state.character_avatar_url)
+        typewriter_effect("assistant", bot_message_container, response, st.session_state.character_avatar_url)
 
         # 봇의 응답을 추가
         st.session_state.messages.append({"role": "assistant", "content": response})
