@@ -303,5 +303,3 @@ elif st.session_state.stage == 2:
             # UI 업데이트 (챗봇 응답 추가)
             with chat_container.container():
                 display_chat_message("assistant", response, st.session_state.character_avatar_url)
-
-        st.rerun()
