@@ -204,7 +204,7 @@ def typing_display_chat_message(role, container, content, avatar_url):
     container.empty()  # 기존 UI를 지우고 다시 출력
 
 # 한 글자씩 출력하는 함수
-def typewriter_effect(role, container, content, avatar_url):
+def typewriter_effect(container, content, avatar_url):
     output = ""
     for char in content:
         output += char
