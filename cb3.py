@@ -345,7 +345,8 @@ elif st.session_state.stage == 2:
         with chat_container.container():
             st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
             for msg in st.session_state.messages:
-                display_chat_message(msg["role"], msg["content"], 
+                if msg["role"] == "user":
+                    display_chat_message(msg["role"], msg["content"], 
                                      st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
             st.markdown('</div></div>', unsafe_allow_html=True)
 
