@@ -195,14 +195,25 @@ def display_chat_message2(role, text, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
     container = st.empty()
+
+    # 처음에는 전체 구조를 출력하고, 이후 텍스트 부분만 변경
+    container.markdown(f"""
+    <div class="chat-bubble {bubble_class} {message_class}" id="chat-message">
+        <img src="{avatar_url}" class="chat-avatar">
+        <div id="chat-text"></div>
+    </div>
+    <script>
+        var chatText = document.getElementById("chat-text");
+    </script>
+    """, unsafe_allow_html=True)
+    
     output = ""
     for char in text:
         output += char
         container.markdown(f"""
-        <div class="chat-bubble {bubble_class} {message_class}">
-            <img src="{avatar_url}" class="chat-avatar">
-            <div>{output}</div>
-        </div>
+        <script>
+            chatText.innerHTML = `{output}`;
+        </script>
         """, unsafe_allow_html=True)
         time.sleep(0.02)  # 속도 조절
         container.empty()  # 기존 UI를 지우고 다시 출력
