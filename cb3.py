@@ -206,6 +206,9 @@ def display_chat_message(role, content, avatar_url):
     </div>
     """, unsafe_allow_html=True)
 
+select_number = 0
+
+dialog_text, output_text, pdf_text = load_character_files(characters[select_number][0])
 # 프롬프트 정의
 prompt = ChatPromptTemplate.from_messages(
     [
@@ -310,6 +313,7 @@ if st.session_state.stage == 1:
         """, unsafe_allow_html=True)
 
     if selected_character:
+        select_number = selected_character
         st.session_state.character = selected_character
         st.session_state.character_avatar_url = characters[selected_character][1]
         dialog_text, output_text, pdf_text = load_character_files(selected_character)
