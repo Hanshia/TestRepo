@@ -184,29 +184,20 @@ def chat_styles():
 def display_chat_message(role, content, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
-    html_code = f"""
-    <div class="chat-bubble {bubble_class} {message_class}">
-        <img src="{avatar_url}" class="chat-avatar">
-        <div>{content}</div>
-    </div>
-    <script>
-    let text = "{content}";
-    let container = document.getElementById("typing-container");
-    container.innerHTML = "";  // 초기화
-
-    let i = 0;
-    function typeEffect() {{
-        if (i < text.length) {{
-            container.innerHTML += text.charAt(i);
-            i++;
-            setTimeout(typeEffect, 100);  // 100ms 간격으로 타이핑
-        }}
-    }}
-    typeEffect();
-    </script>
-    """
-    st.components.v1.html(html_code, height=100)
-
+    
+    with st.chat_message(role):  # ✅ 채팅 말풍선 유지
+        message_placeholder = st.empty()  # ✅ 지속적으로 업데이트할 공간 생성
+        displayed_text = ""  # ✅ 누적된 텍스트 저장
+        
+        for char in content:
+            displayed_text += char  # 한 글자씩 추가
+            message_placeholder.markdown(f"""
+            <div class="chat-bubble {bubble_class} {message_class}">
+                <img src="{avatar_url}" class="chat-avatar">
+                <div>{displayed_text}</div>
+            </div>
+            """, unsafe_allow_html=True)  # ✅ 한 글자씩 업데이트
+            time.sleep(0.05)  # ✅ 50ms 간격으로 출력
 
 # LangChain 프롬프트 템플릿 설정
 chat_prompt = ChatPromptTemplate.from_messages([
