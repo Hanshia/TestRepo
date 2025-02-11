@@ -6,7 +6,6 @@ from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.output_parsers import StrOutputParser
-import time
 
 st.session_state.language = '한국어'
 
@@ -191,48 +190,6 @@ def display_chat_message(role, content, avatar_url):
     </div>
     """, unsafe_allow_html=True)
 
-# 타이핑 효과 적용 함수
-def display_typing_effect(content, avatar_url):
-    """AI의 메시지를 한 글자씩 출력하여 타이핑 효과를 주는 함수"""
-    bubble_class = "assistant-bubble"
-    message_class = "assistant-message"
-    
-    # 한 글자씩 출력
-    displayed_text = ""
-    message_placeholder = st.empty()
-    for char in content:
-        displayed_text += char
-        message_placeholder.markdown(f"""
-        <div class="chat-bubble {bubble_class} {message_class}">
-            <img src="{avatar_url}" class="chat-avatar">
-            <div>{displayed_text}</div>
-        </div>
-        """, unsafe_allow_html=True)
-        time.sleep(0.05)  # 타이핑 속도 조절
-
-# 챗봇 응답 처리
-def handle_chat_response(user_input, character_avatar_url):
-    """유저 입력을 받아 챗봇 응답을 처리하는 함수"""
-    if user_input:
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        
-        # 유저 메시지 즉시 출력
-        chat_container.empty()
-        with chat_container.container():
-            for msg in st.session_state.messages:
-                if msg["role"] == "assistant":
-                    display_typing_effect(msg["content"], character_avatar_url)
-                else:
-                    display_chat_message(msg["role"], msg["content"], user_avatar_url)
-
-        # 챗봇 응답 생성
-        with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
-            response = get_response(st.session_state.character, user_input)
-        
-        # 챗봇 응답 타이핑 효과 적용
-        st.session_state.messages.append({"role": "assistant", "content": response})
-        display_typing_effect(response, character_avatar_url)
-
 # LangChain 프롬프트 템플릿 설정
 chat_prompt = ChatPromptTemplate.from_messages([
     ("system", """너는 {character}의 역할을 수행해야 해. {character}의 스타일과 말투를 유지해야 해.
@@ -352,8 +309,27 @@ elif st.session_state.stage == 2:
         # 봇 응답 생성
         with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
             response = get_response(st.session_state.character, user_input)
+
+            full_response = ""
+            for response2 in response:
+                full_response += response['choices'][0]['message']['content']
+
+                # Show typing effect
+                message_placeholder = st.empty()
+                message_placeholder.chat_message(role='assistant', content=full_response + "|")
+
+        # Display final response without blinking cursor
+        message_placeholder.chat_message(role='assistant', content=full_response)
         
-        # 챗봇 응답 타이핑 효과 적용
+        # 봇의 응답을 추가
         st.session_state.messages.append({"role": "assistant", "content": response})
-        display_typing_effect(response, st.session_state.character_avatar_url)
+
+        # 다시 채팅 UI 업데이트 (봇의 메시지를 추가)
+        chat_container.empty()
+        with chat_container.container():
+            st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
+            for msg in st.session_state.messages:
+                display_chat_message(msg["role"], msg["content"], 
+                                     st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
+            st.markdown('</div></div>', unsafe_allow_html=True)
 
