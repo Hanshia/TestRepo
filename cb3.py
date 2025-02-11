@@ -181,7 +181,20 @@ def chat_styles():
 
 # LangChain 프롬프트 템플릿 설정
 chat_prompt = ChatPromptTemplate.from_messages([
-    ("system", "너는 {character}로 역할을 수행해야 해. {character}의 스타일과 말투를 유지해야 해."),
+    ("system", """너는 {character}의 역할을 수행해야 해. {character}의 스타일과 말투를 유지해야 해.
+    아래는 {character}의 대화 패턴 및 설정 문서에서 가져온 정보야.
+
+    🔹 **대화 예시**  
+    {dialog_text}
+
+    🔹 **대화 패턴 분석 결과**  
+    {output_text}
+
+    🔹 **공식 설정 문서 정보**  
+    {pdf_text}
+
+    위 정보를 기반으로 {character}답게 대화를 해줘.
+    """),
     MessagesPlaceholder(variable_name="history"),
     ("user", "{input}")
 ])
@@ -205,7 +218,13 @@ chat_with_memory = RunnableWithMessageHistory(
 def get_response(character, user_input):
     dialog_text, output_text, pdf_text = load_character_files(character)
     response = chat_with_memory.invoke(
-        {"character": character, "input": user_input},
+        {
+            "character": character, 
+            "input": user_input,
+            "dialog_text": dialog_text,
+            "output_text": output_text,
+            "pdf_text": pdf_text
+        },
         config={"configurable": {"session_id": "current"}}
     )
     return response
