@@ -184,7 +184,7 @@ def chat_styles():
 def display_chat_message(role, content, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
-    st.markdown(f"""
+    html_code = f"""
     <div class="chat-bubble {bubble_class} {message_class}">
         <img src="{avatar_url}" class="chat-avatar">
         <div>{content}</div>
@@ -204,7 +204,8 @@ def display_chat_message(role, content, avatar_url):
     }}
     typeEffect();
     </script>
-    """, unsafe_allow_html=True)
+    """, st.components.v1.html(html_code, height=100)
+
 
 # LangChain 프롬프트 템플릿 설정
 chat_prompt = ChatPromptTemplate.from_messages([
