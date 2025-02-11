@@ -3,4 +3,3 @@ streamlit
 pymupdf
 frontend
 langchain_community
-streamlit_chat
