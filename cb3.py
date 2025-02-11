@@ -6,7 +6,7 @@ from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.output_parsers import StrOutputParser
-import streamlit.components.v1 as components
+import time
 
 st.session_state.language = '한국어'
 
@@ -180,86 +180,38 @@ def chat_styles():
     </style>
     """, unsafe_allow_html=True)
 
+# 한 글자씩 출력하는 함수
+def typewriter_effect(container, text, avatar_url):
+    output = ""
+    for char in text:
+        output += char
+        container.markdown(f"""
+        <div class="chat-bubble assistant-bubble assistant-message">
+            <img src="{avatar_url}" class="chat-avatar">
+            <div>{output}</div>
+        </div>
+        """, unsafe_allow_html=True)
+        time.sleep(0.05)  # 속도 조절
+        container.empty()  # 기존 UI를 지우고 다시 출력
+
+    # 최종적으로 완성된 텍스트를 다시 출력 (깜빡임 방지)
+    container.markdown(f"""
+    <div class="chat-bubble assistant-bubble assistant-message">
+        <img src="{avatar_url}" class="chat-avatar">
+        <div>{output}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
 # 말풍선 스타일의 메시지 표시 함수
 def display_chat_message(role, content, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
-    js_code = f"""
+    st.markdown(f"""
     <div class="chat-bubble {bubble_class} {message_class}">
         <img src="{avatar_url}" class="chat-avatar">
-        <div class="chat-content"></div>
+        <div>{content}</div>
     </div>
-    <script>
-    (function() {{
-        function typeText(element, text, speed = 50) {{
-            let index = 0;
-            function type() {{
-                if (index < text.length) {{
-                    element.innerHTML += text.charAt(index);
-                    index++;
-                    setTimeout(type, speed);
-                }} else {{
-                    adjustHeight(); // 텍스트 입력 후 높이 조정
-                }}
-            }}
-            type();
-        }}
-
-        function adjustHeight() {{
-            if (chatContainer) {{
-                const height = chatContainer.scrollHeight;
-                window.parent.postMessage({{ height: height }}, "*");
-            }}
-        }}
-
-        window.addEventListener("load", adjustHeight);
-        window.addEventListener("resize", adjustHeight);
-
-        const chatBubble = document.currentScript.previousElementSibling;
-        const chatContent = chatBubble.querySelector(".chat-content");
-        typeText(chatContent, `{content}`);
-    }})();
-    </script>
-    <style>
-    .chat-bubble {{
-        padding: 10px;
-        margin: 5px;
-        border-radius: 10px;
-        display: inline-block; /* 텍스트 길이에 맞춰 말풍선 길이 조정 */
-        max-width: 70%;
-        word-wrap: break-word;
-        display: flex;
-        align-items: flex-start;
-    }}
-    .chat-avatar {{
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        margin-right: 10px;
-        object-fit: cover;
-    }}
-    .user-bubble {{
-        background-color: #e0e0e0;
-        color: black;
-        border-top-right-radius: 0;
-        margin-left: auto;
-        flex-direction: row-reverse;
-    }}
-    .assistant-bubble {{
-        background-color: #d1a3ff;
-        color: black;
-        border-top-left-radius: 0;
-        margin-right: auto;
-    }}
-    .user-message {{
-        align-self: flex-end;
-    }}
-    .assistant-message {{
-        align-self: flex-start;
-    }}
-    </style>
-    """
-    components.html(js_code)
+    """, unsafe_allow_html=True)
 
 # LangChain 프롬프트 템플릿 설정
 chat_prompt = ChatPromptTemplate.from_messages([
@@ -360,7 +312,7 @@ if st.session_state.stage == 1:
         st.session_state.stage = 2
         st.rerun()
 
-# 대화 진행
+# 챗봇 응답 로직 수정
 elif st.session_state.stage == 2:
     user_input = st.chat_input("대화를 입력하세요:")
 
@@ -369,7 +321,7 @@ elif st.session_state.stage == 2:
         st.session_state.messages.append({"role": "user", "content": user_input})
 
         # 채팅 UI 업데이트 (즉시 유저 메시지 보이게 하기)
-        chat_container.empty()  # 기존 내용 삭제
+        chat_container.empty()
         with chat_container.container():
             st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
             for msg in st.session_state.messages:
@@ -380,16 +332,13 @@ elif st.session_state.stage == 2:
         # 봇 응답 생성
         with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
             response = get_response(st.session_state.character, user_input)
-        
-        # 봇의 응답을 추가
-        st.session_state.messages.append({"role": "assistant", "content": response})
 
-        # 다시 채팅 UI 업데이트 (봇의 메시지를 추가)
-        chat_container.empty()
-        with chat_container.container():
-            st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
-            for msg in st.session_state.messages:
-                display_chat_message(msg["role"], msg["content"], 
-                                     st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
-            st.markdown('</div></div>', unsafe_allow_html=True)
+        # 빈 컨테이너 생성 (한 글자씩 출력할 영역)
+        bot_message_container = st.empty()
+
+        # 한 글자씩 출력
+        typewriter_effect(bot_message_container, response, st.session_state.character_avatar_url)
+
+        # 최종적으로 봇의 응답을 세션에 추가
+        st.session_state.messages.append({"role": "assistant", "content": response})
 
