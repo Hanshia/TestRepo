@@ -184,9 +184,9 @@ def display_chat_message(role, content, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
     st.markdown(f"""
-    <div style="display: flex; align-items: center; margin: 5px 0;">
-        <img src="{avatar_url}" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
-        <span>{content}</span>
+    <div class="chat-bubble {bubble_class} {message_class}">
+        <img src="{avatar_url}" class="chat-avatar">
+        <div>{content}</div>
     </div>
     """, unsafe_allow_html=True)
 
