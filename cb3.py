@@ -184,21 +184,10 @@ def chat_styles():
 def display_chat_message(role, content, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
-    
-    # ✅ 기존 메시지 출력
-    for msg in st.session_state.messages:
-        with st.chat_message(msg["role"]):
-            st.markdown(f"""
-            <div class="chat-bubble {msg['bubble_class']} {msg['message_class']}">
-                <img src="{msg['avatar_url']}" class="chat-avatar">
-                <div>{msg['content']}</div>
-            </div>
-            """, unsafe_allow_html=True)
 
-    # ✅ 새로운 메시지만 타이핑 효과 적용
-    with st.chat_message(role):
-        message_placeholder = st.empty()  # ✅ 비어 있는 공간을 생성
-        displayed_text = ""  # ✅ 누적된 텍스트 저장
+    with st.chat_message(role):  # ✅ 새로운 채팅 말풍선 생성
+        message_placeholder = st.empty()  # ✅ 타이핑 효과를 적용할 공간
+        displayed_text = ""  # ✅ 출력할 텍스트 변수
         
         for char in content:
             displayed_text += char  # 한 글자씩 추가
