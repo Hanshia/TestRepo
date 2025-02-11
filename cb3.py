@@ -294,15 +294,6 @@ elif st.session_state.stage == 2:
     # 채팅 컨테이너 설정 (유저 입력 후 UI가 즉시 반영되도록)
     chat_container = st.container()
 
-    # 기존 채팅 메시지 표시
-    with chat_container:
-        for msg in st.session_state.messages:
-            display_chat_message(
-                msg["role"], 
-                msg["content"], 
-                st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url
-            )
-
     # 사용자 입력 받기
     user_input = st.chat_input("대화를 입력하세요:")
     
