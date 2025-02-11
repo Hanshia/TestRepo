@@ -350,16 +350,9 @@ elif st.session_state.stage == 2:
 
         bot_message_container = st.empty()
 
-        # 다시 채팅 UI 업데이트 (봇의 메시지를 추가)
-        chat_container.empty()
-        with chat_container.container():
-            st.markdown('<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True)
-            for msg in st.session_state.messages:
-                if msg["role"] != "user":
-                    typewriter_effect(msg["role"], bot_message_container, msg["content"], 
-                                     st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
-                else:
-                    display_chat_message(msg["role"], msg["content"], 
-                                     st.session_state.character_avatar_url if msg["role"] == "assistant" else user_avatar_url)
-            st.markdown('</div></div>', unsafe_allow_html=True)
+        # 한 글자씩 출력
+        typewriter_effect(bot_message_container, response, st.session_state.character_avatar_url)
+
+        # 최종적으로 봇의 응답을 세션에 추가
+        st.session_state.messages.append({"role": "assistant", "content": response})
 
