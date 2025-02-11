@@ -309,17 +309,6 @@ elif st.session_state.stage == 2:
         # 봇 응답 생성
         with st.spinner('답변 생성 중... 잠시만 기다려 주세요.'):
             response = get_response(st.session_state.character, user_input)
-
-            full_response = ""
-            for response2 in response:
-                full_response += response['choices'][0]['message']['content']
-
-                # Show typing effect
-                message_placeholder = st.empty()
-                message_placeholder.chat_message(role='assistant', content=full_response + "|")
-
-        # Display final response without blinking cursor
-        message_placeholder.chat_message(role='assistant', content=full_response)
         
         # 봇의 응답을 추가
         st.session_state.messages.append({"role": "assistant", "content": response})
