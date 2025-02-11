@@ -184,29 +184,29 @@ def chat_styles():
 def display_chat_message(role, content, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
-    st.markdown(f"""
+    st.markdown("""
     <div class="chat-bubble {bubble_class} {message_class}">
         <img src="{avatar_url}" class="chat-avatar">
         <div>{content}</div>
     </div>
     <script>
-    (function() {{
-        function typeText(element, text, speed = 50) {{
+    (function() {
+        function typeText(element, text, speed = 50) {
             let index = 0;
-            function type() {{
-                if (index < text.length) {{
+            function type() {
+                if (index < text.length) {
                     element.innerHTML += text.charAt(index);
                     index++;
                     setTimeout(type, speed);
-                }}
-            }}
+                }
+            }
             type();
-        }}
+        }
 
         const chatBubble = document.currentScript.previousElementSibling;
         const chatContent = chatBubble.querySelector(".chat-content");
         typeText(chatContent, `{content}`);
-    }})();
+    })();
     </script>
     """, unsafe_allow_html=True)
 
