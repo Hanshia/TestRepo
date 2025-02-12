@@ -33,6 +33,9 @@ assistant_avatar_url = "https://via.placeholder.com/50?text=Bot"
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = ChatMessageHistory()
 
+with st.sidebar:
+    session_id = st.text_input("Session ID", value="abc123")
+
 # PDF에서 텍스트 추출
 def extract_text_from_pdf(pdf_path):
     text = ""
