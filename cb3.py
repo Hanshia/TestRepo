@@ -5,6 +5,7 @@ import fitz  # PDF 읽기용 (PyMuPDF)
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.output_parsers import StrOutputParser
 import time
 
@@ -32,9 +33,6 @@ assistant_avatar_url = "https://via.placeholder.com/50?text=Bot"
 # 대화 기록 관리
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = ChatMessageHistory()
-
-with st.sidebar:
-    session_id = st.text_input("Session ID", value="abc123")
 
 # PDF에서 텍스트 추출
 def extract_text_from_pdf(pdf_path):
@@ -244,10 +242,36 @@ chat_chain = (
     | StrOutputParser()
 )
 
+# 세션별 대화 기록 관리
+if "store" not in st.session_state:
+    st.session_state.store = {}
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+    st.session_state.character = None
+    st.session_state.language = "한국어"
+    st.session_state.character_avatar_url = assistant_avatar_url
+    st.session_state.stage = 1
+
+def get_session_history(session_id: str) -> BaseChatMessageHistory:
+    if session_id not in st.session_state.store:
+        st.session_state.store[session_id] = ChatMessageHistory()
+    return st.session_state.store[session_id]
+
+# 사용자가 session_id를 입력했을 때 새 기록을 로드
+with st.sidebar:
+    session_id = st.text_input("Session ID", value="abc123")
+    st.session_state.chat_history = get_session_history(session_id)
+
+    clear_btn = st.button("대화 기록 초기화")
+    if clear_btn:
+        st.session_state["messages"] = []
+        st.rerun()
+
 # 메시지 히스토리를 포함하는 실행 객체 생성
 chat_with_memory = RunnableWithMessageHistory(
     chat_chain,
-    lambda session_id: st.session_state.chat_history,
+    lambda session_id: get_session_history(session_id),
     input_messages_key="input",
     history_messages_key="history"
 )
@@ -263,7 +287,7 @@ def get_response(character, user_input):
             "output_text": output_text,
             "pdf_text": pdf_text
         },
-        config={"configurable": {"session_id": "current"}}
+        config={"configurable": {"session_id": session_id}}
     )
     return response
 
@@ -272,13 +296,6 @@ st.title("캐릭터 챗봇")
 
 # CSS 스타일 적용
 chat_styles()
-
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-    st.session_state.character = None
-    st.session_state.language = "한국어"
-    st.session_state.character_avatar_url = assistant_avatar_url
-    st.session_state.stage = 1
 
 # 대화 히스토리 표시
 chat_container = st.empty()
